@@ -1,0 +1,51 @@
+{
+  "name": "sara7a",
+  "version": "1.0.0",
+  "description": "A simple MVC-based web application that allows users to send and receive anonymous messages.",
+  "author": "Amr Mohammed",
+  "license": "MIT",
+  "type": "module",
+  "main": "server.js",
+  "targets": {
+    "main": false
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start": "node server.js",
+    "prod": "cross-env NODE_ENV=production nodemon server.js",
+    "debug": "ndb server.js",
+    "watch:js": "parcel serve ./public/js/index.js --dist-dir ./public/js/bundled",
+    "build:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.33.0",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.37.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.21.3",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.3.0",
+    "nodemon": "^3.1.10",
+    "parcel": "^2.16.0",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
+    "morgan": "^1.10.1",
+    "nodemailer": "^7.0.9",
+    "qs": "^6.14.0"
+  }
+}

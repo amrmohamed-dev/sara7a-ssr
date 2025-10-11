@@ -1,0 +1,63 @@
+<%- include("./shared/header.ejs") %>
+
+<div class="container my-5">
+
+  <!-- User Card -->
+  <div class="card text-center py-5 shadow-sm">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#share">
+      <img 
+        src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>" 
+        class="avatar mb-3" 
+        alt="User Photo" 
+      />
+    </a>
+    <h3 class="py-2 mb-3"><%= user?.name %></h3>
+
+    <button data-bs-toggle="modal" data-bs-target="#share" class="btn btn-default-outline rounded-pill px-4">
+      <i class="fas fa-share-alt"></i> Share Profile
+    </button>
+  </div>
+
+  <!-- Share Profile Modal -->
+  <div class="modal fade" id="share" tabindex="-1" aria-labelledby="shareLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100" id="shareLabel" style="color:#10bbb3;">Share Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal">x</button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3 text-muted">Copy and share your public profile link and start receiving messages</p>
+          <div class="input-group mb-3">
+            <input type="text" readonly class="form-control text-center" value="<%= `${fullUrl}/${user?.username}` %>" id="profileLink">
+            <button class="btn btn-default-outline" id="copyBtn">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Section -->
+  <div class="container text-center my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+
+        <% if (!msgs?.length) { %>
+          <div class="empty-state shadow-sm">
+            You don't have any messages yet...
+          </div>
+        <% } else { %>
+          <% msgs.forEach(msg => { %>
+            <div class="message-card shadow-sm">
+              <p><%= msg.text %></p>
+            </div>
+          <% }) %>
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<%- include("./shared/footer.ejs") %>

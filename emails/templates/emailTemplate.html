@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{templateTitle}}</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f5f8fa; font-family: 'Poppins', Arial, sans-serif; color:#333;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center" style="padding:40px 0;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="max-width:600px; background:#ffffff; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.08); padding:40px 30px; text-align:center;">
+            
+            <!-- Logo -->
+            <tr>
+              <td style="padding-bottom:25px;">
+                <img 
+                  src="https://res.cloudinary.com/dudarfssg/image/upload/v1760129098/favicon_logo_1_ekgtyb.png" 
+                  alt="Sara7a Logo" 
+                  width="120"
+                  style="display:block; margin:0 auto;"
+                />
+                <div style="color:#10bbb3; font-size:13px; margin-top:6px; font-weight:600; letter-spacing:1px;">
+                  SARA7A
+                </div>
+              </td>
+            </tr>
+
+            <!-- Title -->
+            <tr>
+              <td style="font-size:22px; font-weight:700; padding-bottom:10px; color: #1d8ea4;">
+                {{templateTitle}}
+              </td>
+            </tr>
+
+            <!-- Greeting -->
+            <tr>
+              <td style="font-size:16px; line-height:1.6; color:#555; padding:10px 0;">
+                Hello {{name}},
+              </td>
+            </tr>
+
+            <!-- Main Text -->
+            <tr>
+              <td style="font-size:16px; line-height:1.6; padding:10px 0; color:#555;">
+                Your one-time password (OTP) is:
+              </td>
+            </tr>
+
+            <!-- OTP Box -->
+            <tr>
+              <td style="padding:25px 0;">
+                <div style="font-size:28px; font-weight:bold; letter-spacing:8px; background: linear-gradient(90deg, #10bbb3, #7b42f6); color:#fff; display:inline-block; padding:14px 28px; border-radius:10px;">
+                  {{otp}}
+                </div>
+              </td>
+            </tr>
+
+            <!-- Note -->
+            <tr>
+              <td style="font-size:14px; line-height:1.6; color:#777; padding:10px 0;">
+                This code is valid for <strong>10 minutes</strong>.<br/>
+                If you didn’t request this code, you can safely ignore this email.
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="font-size:12px; color:#999; padding-top:30px; border-top:1px solid #eee;">
+                &copy; 2025 <strong style="color:#10bbb3;">Sara7a</strong>. All rights reserved.
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

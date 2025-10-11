@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sara7a | <%= title %></title>
+
+  <link rel="shortcut icon" href="/img/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-custom">
+    <div class="container d-flex justify-content-between align-items-center">
+      <!-- Logo -->
+      <a class="navbar-brand" href="/" title="Home">
+        <img src="/img/favicon.png" width="54" alt="Logo">
+      </a>
+
+      <!-- Toggler -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar Content -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <ul class="navbar-nav align-items-center">
+
+          <% if (user) { %>
+            <li class="nav-item d-flex align-items-center">
+              <a href="/me" class="nav-link d-flex align-items-center">
+                <img src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>" class="rounded-circle me-2" width="32" height="32">
+                <span><%= user.name.split(' ')[0] %></span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link text-danger ms-3 btn nav__el--logout">Logout</a>
+            </li>
+          <% } else { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/register">Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/login">Login</a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>

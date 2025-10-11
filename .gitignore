@@ -11,7 +11,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Parcel build output & cache
-/public/js/bundled/
 .parcel-cache/
 
 # OS files

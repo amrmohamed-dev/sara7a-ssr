@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" }
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["public/js/bundled/**"] }
+    }
   ],
-  "routes": [
-    { "src": "/(.*)", "dest": "server.js" }
-  ]
+  "routes": [{ "src": "/(.*)", "dest": "server.js" }],
+  "buildCommand": "pnpm run build:js"
 }

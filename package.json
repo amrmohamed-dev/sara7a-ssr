@@ -18,7 +18,7 @@
     "build:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled"
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": "22.x"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

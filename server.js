@@ -7,8 +7,6 @@ const port = process.env.PORT || 3000;
 
 dbConnection();
 
-const server = app.listen(port, () =>
-  console.log(`Sara7a is running at=>http://localhost:${port}`),
-);
+const server = app.listen(port, () => console.log(`Sara7a is running`));
 
 processHandler(server);

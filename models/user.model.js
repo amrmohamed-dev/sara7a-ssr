@@ -116,7 +116,7 @@ userSchema.pre(/^find/, function (next) {
 
 userSchema.post('init', (doc) => {
   if (doc.image) {
-    doc.image = `http://localhost:3000/img/users/${doc.image}`;
+    doc.image = `https://sara7a-f2bjez6wr-amr-mohammeds-projects.vercel.app/img/users/${doc.image}`;
   }
 });
 

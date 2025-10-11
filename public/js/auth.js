@@ -1,7 +1,10 @@
 /*eslint-disable*/
 import showAlert from './alerts.js';
 
-const baseUrl = 'http://localhost:3000/api/v1/';
+const baseUrl =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api/v1/'
+    : '/api/v1/';
 
 const register = async (body) => {
   try {

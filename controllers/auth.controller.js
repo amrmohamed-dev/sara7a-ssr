@@ -77,7 +77,7 @@ const login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password))) {
     return next(new AppError('Incorrect email or password.', 400));
   }
-  authService.createSendToken(user, 200, res, 'Loged in successfully!');
+  authService.createSendToken(user, 200, res, 'Logged in successfully!');
 });
 
 const forgotPassword = catchAsync(async (req, res, next) => {

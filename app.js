@@ -1,8 +1,11 @@
 import path from 'path';
 import express from 'express';
 import morgan from 'morgan';
+import helmet from 'helmet';
 import queryString from 'qs';
 import cookieParser from 'cookie-parser';
+import xssClean from './middlewares/xssClean.js';
+import mongoSanitize from './middlewares/mongoSanitize.js';
 import viewRouter from './routes/view.route.js';
 import authRouter from './routes/auth.route.js';
 import msgRouter from './routes/message.route.js';
@@ -10,6 +13,8 @@ import errorHandler from './controllers/error.controller.js';
 import AppError from './utils/error/appError.js';
 
 const app = express();
+
+app.enable('trust proxy');
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -19,6 +24,35 @@ app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 });
+
+app.disable('x-powered-by');
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+      scriptSrc: [
+        "'self'",
+        'https://cdn.jsdelivr.net',
+        'https://cdnjs.cloudflare.com',
+        "'unsafe-inline'",
+        'blob:',
+        'data:',
+      ],
+      styleSrc: [
+        "'self'",
+        'https://cdn.jsdelivr.net',
+        'https://fonts.googleapis.com',
+        "'unsafe-inline'",
+      ],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:'],
+    },
+  }),
+);
+
+app.use(mongoSanitize);
+app.use(xssClean);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(process.cwd(), 'views'));

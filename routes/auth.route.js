@@ -6,23 +6,47 @@ import {
   registerSchema,
   resetPasswordSchema,
 } from '../validations/auth.validation.js';
+import * as rateLimiter from '../middlewares/limiter.js';
 
 const authRouter = express.Router();
 
 authRouter.post(
   '/register',
   validation(registerSchema),
+  rateLimiter.registerLimiter,
   authController.register,
 );
-authRouter.post('/send-verification', authController.sendVerificationOtp);
-authRouter.patch('/verify-email', authController.verifyEmail);
-authRouter.post('/login', validation(loginSchema), authController.login);
+authRouter.post(
+  '/send-verification',
+  rateLimiter.strictLimiter,
+  authController.sendVerificationOtp,
+);
+authRouter.patch(
+  '/verify-email',
+  rateLimiter.verifyLimiter,
+  authController.verifyEmail,
+);
+authRouter.post(
+  '/login',
+  validation(loginSchema),
+  rateLimiter.loginLimiter,
+  authController.login,
+);
 
-authRouter.post('/forgot-password', authController.forgotPassword);
-authRouter.post('/verify-otp', authController.verifyOtp);
+authRouter.post(
+  '/forgot-password',
+  rateLimiter.strictLimiter,
+  authController.forgotPassword,
+);
+authRouter.post(
+  '/verify-otp',
+  rateLimiter.verifyLimiter,
+  authController.verifyOtp,
+);
 authRouter.patch(
   '/reset-password',
   validation(resetPasswordSchema),
+  rateLimiter.resetLimiter,
   authController.resetPassword,
 );
 

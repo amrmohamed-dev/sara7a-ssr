@@ -51,9 +51,6 @@ app.use(
   }),
 );
 
-app.use(mongoSanitize);
-app.use(xssClean);
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(process.cwd(), 'views'));
 app.use(express.static(path.join(process.cwd(), 'public')));
@@ -62,6 +59,9 @@ app.use(cookieParser());
 app.use(express.json({ limit: '5kb' }));
 
 app.set('query parser', (query) => queryString.parse(query));
+
+app.use(mongoSanitize);
+app.use(xssClean);
 
 app.use('/', viewRouter);
 app.use('/api/v1/auth', authRouter);

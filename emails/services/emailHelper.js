@@ -10,7 +10,7 @@ const createSendEmail = async (options, user) => {
     resetFields.forEach((field) => {
       user[field] = undefined;
     });
-    await user.save({ validateModifiedOnly: true });
+    await user.save({ validateBeforeSave: false });
     throw new AppError(
       'We could not send the email. Please try again later.',
       500,

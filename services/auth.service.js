@@ -34,7 +34,7 @@ const createSendToken = (user, statusCode, res, message) => {
 
 const sendOtpEmail = async (user, purpose, res, message) => {
   const otp = user.generateOtp(purpose);
-  await user.save({ validateModifiedOnly: true });
+  await user.save({ validateBeforeSave: false });
 
   const options = {
     name: user.name?.split(' ')[0],

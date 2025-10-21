@@ -39,7 +39,7 @@ const sendEmail = async (options) => {
   });
 
   const mailOptions = {
-    from: `Sara7a <no-reply@sara7a.com>`,
+    from: `Sara7a <${process.env.EMAIL_USER}>`,
     to: email,
     subject,
     html,

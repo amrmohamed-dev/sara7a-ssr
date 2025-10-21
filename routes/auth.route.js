@@ -7,6 +7,7 @@ import {
   resetPasswordSchema,
 } from '../validations/auth.validation.js';
 import * as rateLimiter from '../middlewares/limiter.js';
+import checkOtpPurpose from '../middlewares/checkOtpPurpose.js';
 
 const authRouter = express.Router();
 
@@ -17,13 +18,15 @@ authRouter.post(
   authController.register,
 );
 authRouter.post(
-  '/send-verification',
-  rateLimiter.strictLimiter,
-  authController.sendVerificationOtp,
+  '/send-otp/:purpose',
+  rateLimiter.otpLimiter,
+  checkOtpPurpose,
+  authController.sendOtp,
 );
 authRouter.patch(
   '/verify-email',
   rateLimiter.verifyLimiter,
+  authController.isAuthenticated,
   authController.verifyEmail,
 );
 authRouter.post(
@@ -32,14 +35,8 @@ authRouter.post(
   rateLimiter.loginLimiter,
   authController.login,
 );
-
 authRouter.post(
-  '/forgot-password',
-  rateLimiter.strictLimiter,
-  authController.forgotPassword,
-);
-authRouter.post(
-  '/verify-otp',
+  '/verify-otp/:purpose',
   rateLimiter.verifyLimiter,
   authController.verifyOtp,
 );

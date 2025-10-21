@@ -51,16 +51,16 @@ const loginLimiter = wrapLimiter(
   'Too many login attempts. Please wait 5 minutes.',
 );
 
-// Forgot password & resend verification: 1 / minute & 3/ day
-const strictMinute = new RateLimiterMemory({ points: 1, duration: 60 });
-const strictDay = new RateLimiterMemory({
+// Send OTP: 1 / minute & 3/ day
+const minute = new RateLimiterMemory({ points: 1, duration: 60 });
+const day = new RateLimiterMemory({
   points: 3,
   duration: 24 * 60 * 60,
 });
 
-const strictLimiter = dualLimiter(
-  strictMinute,
-  strictDay,
+const otpLimiter = dualLimiter(
+  minute,
+  day,
   'Too many requests. Please wait 1 minute.',
   'Too many requests. Try again tomorrow.',
 );
@@ -80,7 +80,7 @@ const resetLimiter = wrapLimiter(
 export {
   registerLimiter,
   loginLimiter,
-  strictLimiter,
+  otpLimiter,
   verifyLimiter,
   resetLimiter,
 };

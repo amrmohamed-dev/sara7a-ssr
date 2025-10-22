@@ -15,5 +15,6 @@ viewRouter.use(authController.isLoggedIn);
 viewRouter.get('/', viewController.getHome);
 viewRouter.get('/login', viewController.getLoginForm);
 viewRouter.get('/register', viewController.getRegisterForm);
+viewRouter.get('/forgot-password', viewController.getForgotPasswordForm);
 
 export default viewRouter;

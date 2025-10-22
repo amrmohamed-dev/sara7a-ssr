@@ -28,6 +28,15 @@ const getRegisterForm = (req, res) => {
   });
 };
 
+const getForgotPasswordForm = (req, res) => {
+  if (res.locals.user) {
+    return res.status(200).redirect('/messages');
+  }
+  res.status(200).render('forgotPassword', {
+    title: 'Forgotten password',
+  });
+};
+
 const getMyMsgsPage = catchAsync(async (req, res) => {
   res.locals.fullUrl = `${req.protocol}://${req.host}`;
   const msgs = await Message.find({ receiver: req.user._id });
@@ -37,4 +46,10 @@ const getMyMsgsPage = catchAsync(async (req, res) => {
   });
 });
 
-export { getHome, getRegisterForm, getLoginForm, getMyMsgsPage };
+export {
+  getHome,
+  getRegisterForm,
+  getLoginForm,
+  getForgotPasswordForm,
+  getMyMsgsPage,
+};

@@ -1,0 +1,55 @@
+<%- include("../shared/header.ejs") %>
+
+<div class="container text-center my-5">
+
+  <div class="user my-4">
+    <i class="fas fa-user-secret user-icon mb-3"></i>
+    <h4 class="login">Log into your account</h4>
+  </div>
+
+  <div class="card p-4 p-md-5 w-100 w-md-50 m-auto shadow-sm" style="max-width: 500px;">
+    <form class="form form--login">
+      
+      <div class="form-group mb-3">
+        <input
+          id="email"
+          class="form-control"
+          placeholder="Enter your email"
+          type="email"
+          name="email"
+          required
+        >
+      </div>
+
+      <div class="form-group mb-3">
+        <input
+          id="password"
+          class="form-control"
+          placeholder="Enter your password"
+          type="password"
+          minlength="8"
+          name="password"
+          required
+        >
+      </div>
+
+      <button class="btn btn-default-outline w-100 my-3 rounded-pill btn--login">
+        Login
+      </button>
+
+      <a class="text-muted forgot d-block mb-3" href="/forgot-Password">
+        Forgot your password?
+      </a>
+
+      <p class="mt-3 mb-0 text-muted">
+        Don't have an account?
+        <a href="/register" class="text-primary font-weight-bold">
+          Register here
+        </a>
+      </p>
+
+    </form>
+  </div>
+</div>
+
+<%- include("../shared/footer.ejs") %>

@@ -29,16 +29,49 @@
       <!-- Navbar Content -->
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
         <ul class="navbar-nav align-items-center">
-
           <% if (user) { %>
-            <li class="nav-item d-flex align-items-center">
-              <a href="/settings" class="nav-link d-flex align-items-center">
-                <img src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>" class="rounded-circle me-2" width="32" height="32">
-                <span><%= user.name.split(' ')[0] %></span>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center" href="/messages">
+                <i class="fa-solid fa-inbox me-1"></i>
+                Messages
               </a>
             </li>
-            <li>
-              <a class="nav-link text-danger ms-3 btn nav__el--logout">Logout</a>
+            
+            <li class="nav-item dropdown d-flex align-items-center">
+              <a
+                  class="nav-link dropdown-toggle d-flex align-items-center"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                <img
+                  src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>"
+                  class="rounded-circle me-2 border"
+                  width="36"
+                  height="36"
+                  alt="User"
+                  style="object-fit: cover;"
+                />
+                <span class="fw-semibold"><%= user.name.split(' ')[0] %></span>
+              </a>
+
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="/settings">
+                    <i class="fas fa-cog me-2 text-muted"> Settings</i> 
+                  </a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li>
+                  <a class="dropdown-item text-danger d-flex align-items-center nav__el--logout" href="#">
+                    <i class="fas fa-sign-out-alt me-2"> Logout</i> 
+                  </a>
+                </li>
+              </ul>
             </li>
           <% } else { %>
             <li class="nav-item">

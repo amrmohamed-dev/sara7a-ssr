@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { sendOtp, verifyOtp, resetPassword } from './auth.js';
+import { sendOtp, verifyOtp, resetPassword, verifyEmail } from './auth.js';
 
 const getOtpValue = (inputs) => {
   const otp = Array.from(inputs)
@@ -41,12 +41,12 @@ const handleEnterOtp = (inputs) => {
 const handleOtpSending = async (email, purpose) => {
   return await sendOtp({
     email,
-    purpose: 'Password Recovery',
+    purpose,
   });
 };
 
-const handleOtpVerification = async (email, otp) => {
-  return await verifyOtp({ email, otp, purpose: 'Password Recovery' });
+const handleOtpVerification = async (email, otp, purpose) => {
+  return await verifyOtp({ email, otp, purpose });
 };
 
 const handlePasswordReset = async (email, otp) => {
@@ -59,6 +59,10 @@ const handlePasswordReset = async (email, otp) => {
     password,
     passwordConfirm,
   });
+};
+
+const handleEmailVerification = async (otp) => {
+  await verifyEmail({ otp });
 };
 
 const startCountdown = (resendBtn, countdownEl) => {
@@ -84,5 +88,6 @@ export {
   handleOtpSending,
   handleOtpVerification,
   handlePasswordReset,
+  handleEmailVerification,
   startCountdown,
 };

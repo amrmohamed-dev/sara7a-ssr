@@ -32,7 +32,7 @@
 
           <% if (user) { %>
             <li class="nav-item d-flex align-items-center">
-              <a href="/me" class="nav-link d-flex align-items-center">
+              <a href="/settings" class="nav-link d-flex align-items-center">
                 <img src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>" class="rounded-circle me-2" width="32" height="32">
                 <span><%= user.name.split(' ')[0] %></span>
               </a>

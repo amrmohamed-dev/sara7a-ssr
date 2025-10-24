@@ -1,0 +1,33 @@
+<div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Enter OTP</h5>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-muted mb-4">Enter the 6-digit code we sent to your email</p>
+
+        <div class="d-flex justify-content-center gap-2 mb-3">
+          <% for(let i = 0; i < 6; i++) { %>
+            <input
+              type="text"
+              maxlength="1"
+              class="otp-input form-control text-center"
+              style="width: 45px; height: 45px; font-size: 1.5rem; margin: 2px;"
+              required
+            />
+          <% } %>
+        </div>
+
+        <button class="btn btn-primary w-100" id="verifyOtpBtn">Verify OTP</button>
+
+        <div class="text-center mt-3">
+          <button id="resendOtpBtn" class="btn btn-link text-decoration-none" disabled>
+            Resend OTP <span id="countdown">(60)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

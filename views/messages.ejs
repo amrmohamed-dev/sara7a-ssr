@@ -1,6 +1,7 @@
 <%- include("./shared/header.ejs") %>
 
 <div class="container my-5">
+  <%- include("./shared/verifyEmailAlert.ejs", { page: 'messages' }) %>
 
   <!-- User Card -->
   <div class="card text-center py-5 shadow-sm">
@@ -59,5 +60,8 @@
   </div>
 
 </div>
+
+<!--OTP Modal-->
+<%- include("./shared/otpModal.ejs")%>
 
 <%- include("./shared/footer.ejs") %>

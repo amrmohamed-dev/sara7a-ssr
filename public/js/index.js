@@ -8,6 +8,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const copyBtn = document.getElementById('copyBtn');
 const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
+const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
 
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -53,84 +54,72 @@ if (copyBtn) {
   });
 }
 
-// ---------- Forgot Password Flow ----------
-if (forgotPasswordBtn) {
-  forgotPasswordBtn.addEventListener('click', async () => {
-    const emailInput = document.getElementById('email');
-    if (!emailInput.checkValidity()) {
-      emailInput.classList.add('is-invalid');
-      emailInput.reportValidity();
-      return;
-    }
-    else{
-      emailInput.classList.remove('is-invalid');
-    }
-    const email = emailInput.value.trim();
-    forgotPasswordBtn.textContent = 'Sending....';
-    const sendingStatus = await otpUtils.handleOtpSending(
-      email,
-      'Password Recovery',
+const sendOtpFlow = async (sendBtn, email, purpose) => {
+  sendBtn.textContent = 'Sending....';
+  const sendingStatus = await otpUtils.handleOtpSending(email, purpose);
+  sendBtn.textContent =
+    purpose === 'Password Recovery' ? 'Send OTP' : 'Not Verified';
+  if (sendingStatus) {
+    const otpModal = new bootstrap.Modal(
+      document.getElementById('otpModal'),
     );
-    forgotPasswordBtn.textContent = 'Send OTP';
-    if (sendingStatus) {
-      const otpModal = new bootstrap.Modal(
-        document.getElementById('otpModal'),
+    otpModal.show();
+
+    let resendBtn = document.getElementById('resendOtpBtn');
+    resendBtn.replaceWith(resendBtn.cloneNode(true));
+    resendBtn = document.getElementById('resendOtpBtn');
+    const countdownEl = document.getElementById('countdown');
+    otpUtils.startCountdown(resendBtn, countdownEl);
+
+    // Move between OTP inputs automatically & Paste OTP
+    const inputs = document.querySelectorAll('.otp-input');
+    otpUtils.handleEnterOtp(inputs);
+
+    resendBtn.addEventListener('click', async () => {
+      resendBtn.disabled = true;
+      resendBtn.textContent = 'Resending....';
+      const email = emailInput.value.trim();
+      const sendingStatus = await otpUtils.handleOtpSending(
+        email,
+        purpose,
       );
-      otpModal.show();
+      if (sendingStatus) {
+        otpUtils.startCountdown(resendBtn, countdownEl);
+      } else {
+        resendBtn.textContent = 'Resend OTP';
+        resendBtn.disabled = false;
+      }
+    });
 
-      let resendBtn = document.getElementById('resendOtpBtn');
-      resendBtn.replaceWith(resendBtn.cloneNode(true));
-      resendBtn = document.getElementById('resendOtpBtn');
-      const countdownEl = document.getElementById('countdown');
-      otpUtils.startCountdown(resendBtn, countdownEl);
+    // Verify OTP
+    let verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    // remove oldest listeners
+    verifyOtpBtn.replaceWith(verifyOtpBtn.cloneNode(true));
+    verifyOtpBtn = document.getElementById('verifyOtpBtn');
 
-      // Move between OTP inputs automatically & Paste OTP
-      const inputs = document.querySelectorAll('.otp-input');
-      otpUtils.handleEnterOtp(inputs);
-
-      resendBtn.addEventListener('click', async () => {
-        resendBtn.disabled = true;
-        resendBtn.textContent = 'Resending....';
-        const email = emailInput.value.trim();
-        const sendingStatus = await otpUtils.handleOtpSending(
-          email,
-          'Password Recovery',
-        );
-        if (sendingStatus) {
-          otpUtils.startCountdown(resendBtn, countdownEl);
-        } else {
-          resendBtn.textContent = 'Resend OTP';
-          resendBtn.disabled = false;
-        }
+    verifyOtpBtn.addEventListener('click', async () => {
+      let allFilled = true;
+      Array.from(inputs).forEach((input) => {
+        if (input.value.trim() === '') {
+          input.classList.add('is-invalid');
+          allFilled = false;
+        } else input.classList.remove('is-invalid');
       });
+      if (!allFilled) {
+        return;
+      }
+      verifyOtpBtn.textContent = 'Verifying....';
+      const otp = otpUtils.getOtpValue(inputs);
+      const verifyingStatus = await otpUtils.handleOtpVerification(
+        email,
+        otp,
+        purpose,
+      );
+      verifyOtpBtn.textContent = 'Verify OTP';
+      if (verifyingStatus) {
+        otpModal.hide();
 
-      // Verify OTP
-      let verifyOtpBtn = document.getElementById('verifyOtpBtn');
-      // remove oldest listeners
-      verifyOtpBtn.replaceWith(verifyOtpBtn.cloneNode(true));
-      verifyOtpBtn = document.getElementById('verifyOtpBtn');
-
-      verifyOtpBtn.addEventListener('click', async () => {
-        let allFilled = true;
-        Array.from(inputs).forEach((input) => {
-          if (input.value.trim() === '') {
-            input.classList.add('is-invalid');
-            allFilled = false;
-          } else input.classList.remove('is-invalid');
-        });
-        if (!allFilled) {
-          return;
-        }
-        verifyOtpBtn.textContent = 'Verifying....';
-        const otp = otpUtils.getOtpValue(inputs);
-        const verifyingStatus = await otpUtils.handleOtpVerification(
-          email,
-          otp,
-        );
-        verifyOtpBtn.textContent = 'Verify OTP';
-        if (verifyingStatus) {
-          otpModal.hide();
-
+        if (purpose === 'Password Recovery') {
           const resetModal = new bootstrap.Modal(
             document.getElementById('resetModal'),
           );
@@ -148,8 +137,34 @@ if (forgotPasswordBtn) {
             e.preventDefault();
             await otpUtils.handlePasswordReset(email, otp);
           });
+        } else {
+          await otpUtils.handleEmailVerification(otp);
         }
-      });
+      }
+    });
+  }
+};
+
+if (forgotPasswordBtn) {
+  forgotPasswordBtn.addEventListener('click', async () => {
+    const emailInput = document.getElementById('email');
+    if (!emailInput.checkValidity()) {
+      emailInput.classList.add('is-invalid');
+      emailInput.reportValidity();
+      return;
+    } else {
+      emailInput.classList.remove('is-invalid');
     }
+    const email = emailInput.value.trim();
+    await sendOtpFlow(forgotPasswordBtn, email, 'Password Recovery');
   });
+}
+
+if (verifyEmailBtn.length) {
+  verifyEmailBtn.forEach((btn) =>
+    btn.addEventListener('click', async () => {
+      const email = btn.dataset.email.trim();
+      await sendOtpFlow(btn, email, 'Email Confirmation');
+    }),
+  );
 }

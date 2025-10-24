@@ -83,7 +83,7 @@ const sendOtp = async (body) => {
       body: JSON.stringify({ email }),
     });
     const dataSend = await response.json();
-    if (!response.ok && purpose === 'Password Recovery') {
+    if (!response.ok) {
       throw new Error(dataSend.message);
     }
     showAlert('success', dataSend.message);
@@ -137,4 +137,25 @@ const resetPassword = async (body) => {
   }
 };
 
-export { register, login, sendOtp, verifyOtp, resetPassword, logout };
+const verifyEmail = async (body) => {
+  try {
+    const { otp } = body;
+    const response = await fetch(`${baseUrl}verify-email`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ otp }),
+    });
+    const dataSend = await response.json();
+    if (!response.ok) {
+      throw new Error(dataSend.message);
+    }
+    showAlert('success', dataSend.message);
+    setTimeout(() => location.reload(), 1500);
+  } catch (err) {
+    showAlert('error', err.message);
+  }
+};
+
+export { register, login, logout, sendOtp, verifyOtp, resetPassword, verifyEmail };

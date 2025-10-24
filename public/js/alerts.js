@@ -14,4 +14,11 @@ const showAlert = (type, msg) => {
   setTimeout(hideAlert, 5000);
 };
 
+const alertBox = document.getElementById('verifyAlert');
+if (alertBox) {
+  alertBox.querySelector('.close-alert').addEventListener('click', () => {
+    alertBox.style.display = 'none';
+  });
+}
+
 export default showAlert;

@@ -1,0 +1,247 @@
+<%- include("./shared/header.ejs") %>
+
+<style>
+.profile-wrapper {
+  max-width: 800px;
+  margin: 70px auto;
+}
+
+.card-custom {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  padding: 30px;
+  margin-bottom: 25px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.profile-card {
+  text-align: center;
+  padding: 40px 30px 30px;
+  border-top: 4px solid #00b3a4;
+}
+
+.profile-card img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 3px solid #00b3a4;
+}
+
+.profile-card h4 {
+  font-weight: 600;
+  color: #222;
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #00a091;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.verify-status {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.not-verified {
+  background: #fff4f4;
+  color: #c0392b;
+  border: 1px solid #f3b7b7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.not-verified:hover {
+  background: #f8d7da;
+}
+
+.verified {
+  background: #e9f9f4;
+  color: #15803d;
+  border: 1px solid #b4f0d0;
+  cursor: default;
+}
+
+.user-stats {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-top: 15px;
+  border: 1px solid #eee;
+}
+
+.user-stats i {
+  color: #10bbb3;
+}
+
+.btn-saveData {
+  background: #00b3a4;
+  color: #fff;
+  border-radius: 25px;
+  border: none;
+  width: 100%;
+  padding: 10px 0;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.btn-saveData:hover {
+  background: #009688;
+}
+
+.btn-success {
+  background: #00b86b;
+  border: none;
+  border-radius: 25px;
+  width: 100%;
+  padding: 10px 0;
+  font-weight: 500;
+}
+
+.btn-success:hover {
+  background: #00a05b;
+}
+
+.btn-saveData:disabled,
+.btn-success:disabled {
+  background: #cfd3e1;
+  cursor: not-allowed;
+}
+
+label.form-label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+</style>
+
+<div class="profile-wrapper">
+  <%- include("./shared/verifyEmailAlert.ejs", { page: 'settings' }) %>
+
+  <!-- Profile Picture + Name -->
+  <div class="card-custom profile-card">
+    <img src="/img/users/<%= (user?.photo) ? user.photo : 'static/avatar.png' %>" alt="User Photo">
+    <h4><%= user.name %></h4>
+  </div>
+
+  <!-- Account Info -->
+  <div class="card-custom">
+    <h4 class="section-title">Account Info</h4>
+    <form class="form form--user-data">
+      <div class="form-group mb-3">
+        <label class="form-label" for="name">Name</label>
+        <input
+          type="text"
+          id="name"
+          class="form-control"
+          value="<%= user.name %>"
+          required
+          <%= !user.isVerified ? 'disabled' : '' %>
+        />
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label" for="email">Email</label>
+        <div class="d-flex align-items-center gap-2">
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            value="<%= user.email %>"
+            disabled
+          />
+          <% if (!user.isVerified) { %>
+            <span class="verify-status not-verified" id="verifyEmailBtn" data-email="<%=user.email%>">Not Verified</span>
+          <% } else { %>
+            <span class="verify-status verified">Verified ✅</span>
+          <% } %>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-saveData mt-3"
+        <%= !user.isVerified ? 'disabled' : '' %>
+      >
+        Save Changes
+      </button>
+      <!-- User Stats -->
+      <div class="user-stats mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap text-muted small">
+          <span><i class="fas fa-users me-2 text-primary"></i>Visitors: <strong><%= user.visitorsCount || 0 %></strong></span>
+          <span><i class="far fa-calendar-alt me-2 text-success"></i>Joined: 
+            <strong>
+              <%= new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+            </strong>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Change Password -->
+  <div class="card-custom">
+    <h4 class="section-title">Change Password</h4>
+    <form class="form form--update-password">
+      <div class="form-group mb-3">
+        <label class="form-label" for="current-password">Current Password</label>
+        <input
+          type="password"
+          id="current-password"
+          class="form-control"
+          placeholder="••••••••"
+          minlength="8"
+          required
+          <%= !user.isVerified ? 'disabled' : '' %>
+          />
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label" for="password">New Password</label>
+          <input
+          type="password"
+          id="password"
+          class="form-control"
+          placeholder="••••••••"
+          minlength="8"
+          required
+          <%= !user.isVerified ? 'disabled' : '' %>
+          />
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label" for="password-confirm">Confirm New Password</label>
+          <input
+          type="password"
+          id="password-confirm"
+          class="form-control"
+          placeholder="••••••••"
+          minlength="8"
+          required
+          <%= !user.isVerified ? 'disabled' : '' %>
+        />
+      </div>
+      <button
+        class="btn btn-success"
+        <%= !user.isVerified ? 'disabled' : '' %>
+      >
+        Update Password
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- OTP Modal -->
+<%- include("./shared/otpModal.ejs")%>
+
+<%- include("./shared/footer.ejs") %>

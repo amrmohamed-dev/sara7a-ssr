@@ -37,6 +37,12 @@ const getForgotPasswordForm = (req, res) => {
   });
 };
 
+const getMySettingsPage = (req, res) => {
+  res.status(200).render('settings', {
+    title: 'My settings',
+  });
+};
+
 const getMyMsgsPage = catchAsync(async (req, res, next) => {
   res.locals.fullUrl = `${req.protocol}://${req.host}`;
   const msgs = await Message.find({ receiver: req.user._id });
@@ -51,5 +57,6 @@ export {
   getRegisterForm,
   getLoginForm,
   getForgotPasswordForm,
+  getMySettingsPage,
   getMyMsgsPage,
 };

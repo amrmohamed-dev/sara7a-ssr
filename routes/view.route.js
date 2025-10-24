@@ -9,6 +9,11 @@ viewRouter.get(
   authController.isAuthenticated,
   viewController.getMyMsgsPage,
 );
+viewRouter.get(
+  '/settings',
+  authController.isAuthenticated,
+  viewController.getMySettingsPage,
+);
 
 viewRouter.use(authController.isLoggedIn);
 

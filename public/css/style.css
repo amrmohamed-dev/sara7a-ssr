@@ -159,27 +159,45 @@ button {
 }
 
 /*Form*/
-.form-label {
-  color: #555;
-  font-weight: 500;
+.form-group {
+  position: relative;
+  margin-bottom: 24px;
 }
 
 .form-control {
+  width: 100%;
+  padding: 14px 12px;
+  font-size: 15px;
   border: none;
-  border-bottom: 2px solid #ddd;
-  border-radius: 0;
+  border-bottom: 2px solid #ccc;
   background: transparent;
-  padding: 10px 0;
-  transition: border-color 0.3s;
+  outline: none;
+  transition: border-color 0.25s ease;
 }
 
 .form-control:focus {
-  border-color: #4e73df;
-  box-shadow: none;
+  box-shadow: 0 0 0 2px rgba(0, 179, 164, 0.25);
+  border-color: #00b3a4;
 }
 
-.form-switch input {
-  transform: scale(1.3);
+label {
+  position: absolute;
+  top: 13px;
+  left: 12px;
+  color: #777;
+  font-size: 15px;
+  pointer-events: none;
+  background: #fff;
+  padding: 0 5px;
+  transition: 0.25s ease all;
+}
+
+.form-control:focus + label,
+.form-control:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 10px;
+  font-size: 13px;
+  color: #00b3a4;
 }
 
 /*Footer*/

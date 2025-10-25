@@ -121,11 +121,6 @@
   cursor: not-allowed;
 }
 
-label.form-label {
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 5px;
-}
 </style>
 
 <div class="profile-wrapper">
@@ -141,28 +136,30 @@ label.form-label {
   <div class="card-custom">
     <h4 class="section-title">Account Info</h4>
     <form class="form form--user-data">
-      <div class="form-group mb-3">
-        <label class="form-label" for="name">Name</label>
+      <div class="form-group mb-4">
         <input
-          type="text"
-          id="name"
-          class="form-control"
-          value="<%= user.name %>"
-          required
-          <%= !user.isVerified ? 'disabled' : '' %>
+        type="text"
+        id="name"
+        class="form-control"
+        placeholder=""
+        value="<%= user.name %>"
+        required
+        <%= !user.isVerified ? 'disabled' : '' %>
         />
+        <label class="form-label" for="name">Name</label>
       </div>
 
-      <div class="form-group mb-3">
-        <label class="form-label" for="email">Email</label>
+      <div class="form-group mb-4">
         <div class="d-flex align-items-center gap-2">
           <input
-            type="email"
-            id="email"
-            class="form-control"
-            value="<%= user.email %>"
-            disabled
+          type="email"
+          id="email"
+          class="form-control"
+          placeholder=""
+          value="<%= user.email %>"
+          disabled
           />
+          <label class="form-label" for="email">Email</label>
           <% if (!user.isVerified) { %>
             <span class="verify-status not-verified" id="verifyEmailBtn" data-email="<%=user.email%>">Not Verified</span>
           <% } else { %>
@@ -195,44 +192,44 @@ label.form-label {
   <div class="card-custom">
     <h4 class="section-title">Change Password</h4>
     <form class="form form--update-password">
-      <div class="form-group mb-3">
-        <label class="form-label" for="current-password">Current Password</label>
+      <div class="form-group mb-4">
         <input
-          type="password"
-          id="current-password"
-          class="form-control"
-          placeholder="••••••••"
-          minlength="8"
-          required
-          <%= !user.isVerified ? 'disabled' : '' %>
-          />
-        </div>
-        <div class="form-group mb-3">
-          <label class="form-label" for="password">New Password</label>
-          <input
-          type="password"
-          id="password"
-          class="form-control"
-          placeholder="••••••••"
-          minlength="8"
-          required
-          <%= !user.isVerified ? 'disabled' : '' %>
-          />
-        </div>
-        <div class="form-group mb-4">
-          <label class="form-label" for="password-confirm">Confirm New Password</label>
-          <input
-          type="password"
-          id="password-confirm"
-          class="form-control"
-          placeholder="••••••••"
-          minlength="8"
-          required
-          <%= !user.isVerified ? 'disabled' : '' %>
+        type="password"
+        id="current-password"
+        class="form-control"
+        placeholder=""
+        minlength="8"
+        required
+        <%= !user.isVerified ? 'disabled' : '' %>
         />
+        <label class="form-label" for="current-password">Current Password</label>
+      </div>
+      <div class="form-group mb-4">
+        <input
+        type="password"
+        id="password"
+        class="form-control"
+        placeholder=""
+        minlength="8"
+        required
+        <%= !user.isVerified ? 'disabled' : '' %>
+        />
+        <label class="form-label" for="password">New Password</label>
+      </div>
+      <div class="form-group mb-4">
+        <input
+        type="password"
+        id="password-confirm"
+        class="form-control"
+        placeholder=""
+        minlength="8"
+        required
+        <%= !user.isVerified ? 'disabled' : '' %>
+        />
+        <label class="form-label" for="password-confirm">Confirm New Password</label>
       </div>
       <button
-        class="btn btn-success"
+        class="btn btn-success btn--update-password"
         <%= !user.isVerified ? 'disabled' : '' %>
       >
         Update Password

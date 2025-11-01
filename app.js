@@ -9,6 +9,7 @@ import mongoSanitize from './middlewares/mongoSanitize.js';
 import viewRouter from './routes/view.route.js';
 import authRouter from './routes/auth.route.js';
 import msgRouter from './routes/message.route.js';
+import userRouter from './routes/user.route.js';
 import errorHandler from './controllers/error.controller.js';
 import AppError from './utils/error/appError.js';
 
@@ -66,6 +67,7 @@ app.use(xssClean);
 app.use('/', viewRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/messages', msgRouter);
+app.use('/api/v1/users', userRouter);
 
 app.use((req, res, next) => {
   next(

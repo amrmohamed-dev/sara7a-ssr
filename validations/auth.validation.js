@@ -27,7 +27,7 @@ const resetPasswordSchema = joi.object({
   password: joi
     .string()
     // .pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,30}$/)
-    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .pattern(/^[a-zA-Z0-9]{8,30}$/)
     .required(),
   passwordConfirm: joi.string().valid(joi.ref('password')).required(),
 });
@@ -36,12 +36,12 @@ const updatePasswordSchema = joi.object({
   currentPassword: joi
     .string()
     // .pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,30}$/)
-    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .pattern(/^[a-zA-Z0-9]{8,30}$/)
     .required(),
   password: joi
     .string()
     // .pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,30}$/)
-    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .pattern(/^[a-zA-Z0-9]{8,30}$/)
     .required(),
   passwordConfirm: joi.string().valid(joi.ref('password')).required(),
 });

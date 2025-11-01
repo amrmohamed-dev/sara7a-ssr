@@ -152,15 +152,12 @@ const updateMyPassword = catchAsync(async (req, res, next) => {
   user.password = password;
   await user.save({ validateModifiedOnly: true });
 
-  const token = authService.createSendToken(user, res);
-  res.status(200).json({
-    status: 'success',
-    message: 'Password updated successfully',
-    token,
-    data: {
-      user,
-    },
-  });
+  authService.createSendToken(
+    user,
+    200,
+    res,
+    'Password updated successfully',
+  );
 });
 
 const isAuthenticated = catchAsync(async (req, res, next) => {

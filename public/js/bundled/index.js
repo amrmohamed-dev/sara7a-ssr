@@ -715,12 +715,17 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 },{}],"2VqTL":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var _authJs = require("./auth.js");
 var _otpUtilsJs = require("./otpUtils.js");
+var _settingsJs = require("./settings.js");
 const registerForm = document.querySelector('.form--register');
 const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const copyBtn = document.getElementById('copyBtn');
 const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
 const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
+const updatePasswordForm = document.querySelector('.form--update-password');
+const userDataForm = document.querySelector('.form--user-data');
+const deleteMyAccount = document.getElementById('deleteAccountBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const registerBtn = document.querySelector('.btn--register');
@@ -836,8 +841,54 @@ if (verifyEmailBtn.length) verifyEmailBtn.forEach((btn)=>btn.addEventListener('c
         const email = btn.dataset.email.trim();
         await sendOtpFlow(btn, email, 'Email Confirmation');
     }));
+if (updatePasswordForm) updatePasswordForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const updatePasswordBtn = document.querySelector('.btn--update-password');
+    updatePasswordBtn.textContent = 'Updating....';
+    const currentPassword = document.getElementById('current-password').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+    updatePasswordBtn.disabled = true;
+    const updatingStatus = await _settingsJs.updateSettings({
+        currentPassword,
+        password,
+        passwordConfirm
+    }, 'password');
+    updatePasswordBtn.textContent = 'Update Password';
+    if (updatingStatus) updatePasswordForm.reset();
+    updatePasswordBtn.disabled = false;
+});
+if (userDataForm) userDataForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const saveDataBtn = document.querySelector('.btn--save-data');
+    saveDataBtn.textContent = 'Updating....';
+    const name = document.getElementById('name').value;
+    saveDataBtn.disabled = true;
+    const savingStatus = await _settingsJs.updateSettings({
+        name
+    }, 'data');
+    saveDataBtn.textContent = 'Save Changes';
+    if (savingStatus) setTimeout(()=>location.reload(), 1100);
+    else saveDataBtn.disabled = false;
+});
+if (deleteMyAccount) deleteMyAccount.addEventListener('click', ()=>{
+    const modal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+    modal.show();
+});
+if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async ()=>{
+    confirmDeleteBtn.textContent = 'Deleting...';
+    confirmDeleteBtn.disabled = true;
+    const deletingStatus = await _settingsJs.deleteAccount();
+    if (deletingStatus) setTimeout(()=>{
+        location.assign('/');
+    }, 1300);
+    else {
+        confirmDeleteBtn.disabled = false;
+        confirmDeleteBtn.textContent = 'Delete My Account';
+    }
+});
 
-},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX"}],"4GNGB":[function(require,module,exports,__globalThis) {
+},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV"}],"4GNGB":[function(require,module,exports,__globalThis) {
 /*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "register", ()=>register);
@@ -1129,6 +1180,69 @@ const startCountdown = (resendBtn, countdownEl)=>{
     }, 1000);
 };
 
-},{"./auth.js":"4GNGB","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
+},{"./auth.js":"4GNGB","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"lJibV":[function(require,module,exports,__globalThis) {
+/*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
+parcelHelpers.export(exports, "deleteAccount", ()=>deleteAccount);
+var _alertsJs = require("./alerts.js");
+var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
+const baseUrl = '/api/v1/users/me/';
+const updateUserData = async (body)=>{
+    const { name } = body;
+    const response = await fetch(baseUrl, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name
+        })
+    });
+    return response;
+};
+const updateUserPassword = async (body)=>{
+    const { currentPassword, password, passwordConfirm } = body;
+    const response = await fetch(`${baseUrl}update-password`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            currentPassword,
+            password,
+            passwordConfirm
+        })
+    });
+    return response;
+};
+const updateSettings = async (body, type)=>{
+    try {
+        const response = type === 'data' ? await updateUserData(body) : await updateUserPassword(body);
+        const dataSend1 = await response.json();
+        if (!response.ok) throw new Error(dataSend1.message || 'Something went wrong');
+        (0, _alertsJsDefault.default)('success', `${type.toUpperCase()} was updated successfully!`);
+        return true;
+    } catch (err) {
+        if (err.message.includes('ref')) (0, _alertsJsDefault.default)('error', 'Password and confirmation do not match');
+        else (0, _alertsJsDefault.default)('error', err.message);
+        return false;
+    }
+};
+const deleteAccount = async ()=>{
+    try {
+        const response = await fetch(baseUrl, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
+        (0, _alertsJsDefault.default)('success', `Your account was deleted successfully!`);
+        return true;
+    } catch (err) {
+        (0, _alertsJsDefault.default)('error', err.message);
+        return false;
+    }
+};
+
+},{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
 
 //# sourceMappingURL=index.js.map

@@ -2,6 +2,7 @@
 
 import { login, register, logout } from './auth.js';
 import * as otpUtils from './otpUtils.js';
+import * as settings from './settings.js';
 
 const registerForm = document.querySelector('.form--register');
 const loginForm = document.querySelector('.form--login');
@@ -9,6 +10,12 @@ const logoutBtn = document.querySelector('.nav__el--logout');
 const copyBtn = document.getElementById('copyBtn');
 const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
 const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
+const updatePasswordForm = document.querySelector(
+  '.form--update-password',
+);
+const userDataForm = document.querySelector('.form--user-data');
+const deleteMyAccount = document.getElementById('deleteAccountBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
 
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -167,4 +174,69 @@ if (verifyEmailBtn.length) {
       await sendOtpFlow(btn, email, 'Email Confirmation');
     }),
   );
+}
+
+if (updatePasswordForm) {
+  updatePasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const updatePasswordBtn = document.querySelector(
+      '.btn--update-password',
+    );
+    updatePasswordBtn.textContent = 'Updating....';
+    const currentPassword =
+      document.getElementById('current-password').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm =
+      document.getElementById('password-confirm').value;
+    updatePasswordBtn.disabled = true;
+    const updatingStatus = await settings.updateSettings(
+      { currentPassword, password, passwordConfirm },
+      'password',
+    );
+    updatePasswordBtn.textContent = 'Update Password';
+    if (updatingStatus) updatePasswordForm.reset();
+    updatePasswordBtn.disabled = false;
+  });
+}
+
+if (userDataForm) {
+  userDataForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveDataBtn = document.querySelector('.btn--save-data');
+    saveDataBtn.textContent = 'Updating....';
+    const name = document.getElementById('name').value;
+    saveDataBtn.disabled = true;
+    const savingStatus = await settings.updateSettings({ name }, 'data');
+    saveDataBtn.textContent = 'Save Changes';
+    if (savingStatus) {
+      setTimeout(() => location.reload(), 1100);
+    } else {
+      saveDataBtn.disabled = false;
+    }
+  });
+}
+
+if (deleteMyAccount) {
+  deleteMyAccount.addEventListener('click', () => {
+    const modal = new bootstrap.Modal(
+      document.getElementById('deleteAccountModal'),
+    );
+    modal.show();
+  });
+}
+
+if (confirmDeleteBtn) {
+  confirmDeleteBtn.addEventListener('click', async () => {
+    confirmDeleteBtn.textContent = 'Deleting...';
+    confirmDeleteBtn.disabled = true;
+    const deletingStatus = await settings.deleteAccount();
+    if (deletingStatus) {
+      setTimeout(() => {
+        location.assign('/');
+      }, 1300);
+    } else {
+      confirmDeleteBtn.disabled = false;
+      confirmDeleteBtn.textContent = 'Delete My Account';
+    }
+  });
 }

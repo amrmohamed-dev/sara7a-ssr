@@ -21,14 +21,28 @@ if (registerForm) {
     e.preventDefault();
     const registerBtn = document.querySelector('.btn--register');
     registerBtn.textContent = 'Please wait....';
+    registerBtn.disabled = true;
     const username = document.getElementById('username').value;
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const passwordConfirm =
       document.getElementById('password-confirm').value;
-    await register({ username, name, email, password, passwordConfirm });
-    registerBtn.textContent = 'Register';
+    const registeringStatus = await register({
+      username,
+      name,
+      email,
+      password,
+      passwordConfirm,
+    });
+    if (registeringStatus) {
+      setTimeout(() => {
+        location.assign('/messages');
+      }, 2000);
+    } else {
+      registerBtn.disabled = false;
+      registerBtn.textContent = 'Register';
+    }
   });
 }
 
@@ -37,10 +51,18 @@ if (loginForm) {
     e.preventDefault();
     const loginBtn = document.querySelector('.btn--login');
     loginBtn.textContent = 'Please wait....';
+    loginBtn.disabled = true;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    await login({ email, password });
-    loginBtn.textContent = 'Login';
+    const loggingStatus = await login({ email, password });
+    if (loggingStatus) {
+      setTimeout(() => {
+        location.assign('/messages');
+      }, 1500);
+    } else {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+    }
   });
 }
 
@@ -52,19 +74,18 @@ if (copyBtn) {
     input.select();
     input.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(input.value);
-    document.getElementById('copyBtn').textContent = 'Copied!';
-    setTimeout(
-      () => (document.getElementById('copyBtn').textContent = 'Copy'),
-      1500,
-    );
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => (copyBtn.textContent = 'Copy'), 1500);
   });
 }
 
 const sendOtpFlow = async (sendBtn, email, purpose) => {
+  const originalText = sendBtn.textContent;
   sendBtn.textContent = 'Sending....';
+  sendBtn.disabled = true;
   const sendingStatus = await otpUtils.handleOtpSending(email, purpose);
-  sendBtn.textContent =
-    purpose === 'Password Recovery' ? 'Send OTP' : 'Not Verified';
+  sendBtn.disabled = false;
+  sendBtn.textContent = originalText;
   if (sendingStatus) {
     const otpModal = new bootstrap.Modal(
       document.getElementById('otpModal'),
@@ -84,7 +105,6 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
     resendBtn.addEventListener('click', async () => {
       resendBtn.disabled = true;
       resendBtn.textContent = 'Resending....';
-      const email = emailInput.value.trim();
       const sendingStatus = await otpUtils.handleOtpSending(
         email,
         purpose,
@@ -115,6 +135,7 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
         return;
       }
       verifyOtpBtn.textContent = 'Verifying....';
+      verifyOtpBtn.disabled = true;
       const otp = otpUtils.getOtpValue(inputs);
       const verifyingStatus = await otpUtils.handleOtpVerification(
         email,
@@ -122,6 +143,7 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
         purpose,
       );
       verifyOtpBtn.textContent = 'Verify OTP';
+      verifyOtpBtn.disabled = false;
       if (verifyingStatus) {
         otpModal.hide();
 
@@ -141,7 +163,20 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
           );
           resetPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            await otpUtils.handlePasswordReset(email, otp);
+            const resetPasswordBtn =
+              document.getElementById('resetPasswordBtn');
+            resetPasswordBtn.textContent = 'Resetting....';
+            resetPasswordBtn.disabled = true;
+            const resettingStatus = await otpUtils.handlePasswordReset(
+              email,
+              otp,
+            );
+            if (resettingStatus) {
+              setTimeout(() => location.assign('/'), 1500);
+            } else {
+              resetPasswordBtn.textContent = 'Reset Password';
+              resetPasswordBtn.disabled = false;
+            }
           });
         } else {
           await otpUtils.handleEmailVerification(otp);
@@ -169,6 +204,7 @@ if (forgotPasswordBtn) {
 if (verifyEmailBtn.length) {
   verifyEmailBtn.forEach((btn) =>
     btn.addEventListener('click', async () => {
+      btn.disabled = true;
       const email = btn.dataset.email.trim();
       await sendOtpFlow(btn, email, 'Email Confirmation');
     }),

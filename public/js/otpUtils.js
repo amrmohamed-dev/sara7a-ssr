@@ -53,7 +53,7 @@ const handlePasswordReset = async (email, otp) => {
   const password = document.getElementById('password').value;
   const passwordConfirm =
     document.getElementById('password-confirm').value;
-  await resetPassword({
+  return await resetPassword({
     email,
     otp,
     password,

@@ -26,11 +26,10 @@ const register = async (body) => {
     }
 
     showAlert('success', dataSend.message);
-    setTimeout(() => {
-      location.assign('/messages');
-    }, 2000);
+    return true;
   } catch (err) {
     showAlert('error', err.message);
+    return false;
   }
 };
 
@@ -51,11 +50,10 @@ const login = async (body) => {
     }
 
     showAlert('success', dataSend.message);
-    setTimeout(() => {
-      location.assign('/messages');
-    }, 1500);
+    return true;
   } catch (err) {
     showAlert('error', err.message);
+    return false;
   }
 };
 
@@ -131,9 +129,10 @@ const resetPassword = async (body) => {
       throw new Error(dataSend.message);
     }
     showAlert('success', dataSend.message);
-    setTimeout(() => location.assign('/'), 1500);
+    return true;
   } catch (err) {
     showAlert('error', err.message);
+    return false;
   }
 };
 

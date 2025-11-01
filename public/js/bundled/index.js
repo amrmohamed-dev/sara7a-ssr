@@ -729,31 +729,45 @@ if (registerForm) registerForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const registerBtn = document.querySelector('.btn--register');
     registerBtn.textContent = 'Please wait....';
+    registerBtn.disabled = true;
     const username = document.getElementById('username').value;
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('password-confirm').value;
-    await (0, _authJs.register)({
+    const registeringStatus = await (0, _authJs.register)({
         username,
         name,
         email,
         password,
         passwordConfirm
     });
-    registerBtn.textContent = 'Register';
+    if (registeringStatus) setTimeout(()=>{
+        location.assign('/messages');
+    }, 2000);
+    else {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Register';
+    }
 });
 if (loginForm) loginForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const loginBtn = document.querySelector('.btn--login');
     loginBtn.textContent = 'Please wait....';
+    loginBtn.disabled = true;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    await (0, _authJs.login)({
+    const loggingStatus = await (0, _authJs.login)({
         email,
         password
     });
-    loginBtn.textContent = 'Login';
+    if (loggingStatus) setTimeout(()=>{
+        location.assign('/messages');
+    }, 1500);
+    else {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+    }
 });
 if (logoutBtn) logoutBtn.addEventListener('click', (0, _authJs.logout));
 if (copyBtn) copyBtn.addEventListener('click', ()=>{
@@ -761,13 +775,16 @@ if (copyBtn) copyBtn.addEventListener('click', ()=>{
     input.select();
     input.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(input.value);
-    document.getElementById('copyBtn').textContent = 'Copied!';
-    setTimeout(()=>document.getElementById('copyBtn').textContent = 'Copy', 1500);
+    copyBtn.textContent = 'Copied!';
+    setTimeout(()=>copyBtn.textContent = 'Copy', 1500);
 });
 const sendOtpFlow = async (sendBtn, email, purpose)=>{
+    const originalText = sendBtn.textContent;
     sendBtn.textContent = 'Sending....';
+    sendBtn.disabled = true;
     const sendingStatus = await _otpUtilsJs.handleOtpSending(email, purpose);
-    sendBtn.textContent = purpose === 'Password Recovery' ? 'Send OTP' : 'Not Verified';
+    sendBtn.disabled = false;
+    sendBtn.textContent = originalText;
     if (sendingStatus) {
         const otpModal = new bootstrap.Modal(document.getElementById('otpModal'));
         otpModal.show();
@@ -782,7 +799,6 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
         resendBtn.addEventListener('click', async ()=>{
             resendBtn.disabled = true;
             resendBtn.textContent = 'Resending....';
-            const email = emailInput.value.trim();
             const sendingStatus = await _otpUtilsJs.handleOtpSending(email, purpose);
             if (sendingStatus) _otpUtilsJs.startCountdown(resendBtn, countdownEl);
             else {
@@ -805,9 +821,11 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
             });
             if (!allFilled) return;
             verifyOtpBtn.textContent = 'Verifying....';
+            verifyOtpBtn.disabled = true;
             const otp = _otpUtilsJs.getOtpValue(inputs);
             const verifyingStatus = await _otpUtilsJs.handleOtpVerification(email, otp, purpose);
             verifyOtpBtn.textContent = 'Verify OTP';
+            verifyOtpBtn.disabled = false;
             if (verifyingStatus) {
                 otpModal.hide();
                 if (purpose === 'Password Recovery') {
@@ -819,7 +837,15 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
                     resetPasswordForm = document.querySelector('.form--reset-password');
                     resetPasswordForm.addEventListener('submit', async (e)=>{
                         e.preventDefault();
-                        await _otpUtilsJs.handlePasswordReset(email, otp);
+                        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+                        resetPasswordBtn.textContent = 'Resetting....';
+                        resetPasswordBtn.disabled = true;
+                        const resettingStatus = await _otpUtilsJs.handlePasswordReset(email, otp);
+                        if (resettingStatus) setTimeout(()=>location.assign('/'), 1500);
+                        else {
+                            resetPasswordBtn.textContent = 'Reset Password';
+                            resetPasswordBtn.disabled = false;
+                        }
                     });
                 } else await _otpUtilsJs.handleEmailVerification(otp);
             }
@@ -827,16 +853,17 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
     }
 };
 if (forgotPasswordBtn) forgotPasswordBtn.addEventListener('click', async ()=>{
-    const emailInput1 = document.getElementById('email');
-    if (!emailInput1.checkValidity()) {
-        emailInput1.classList.add('is-invalid');
-        emailInput1.reportValidity();
+    const emailInput = document.getElementById('email');
+    if (!emailInput.checkValidity()) {
+        emailInput.classList.add('is-invalid');
+        emailInput.reportValidity();
         return;
-    } else emailInput1.classList.remove('is-invalid');
-    const email = emailInput1.value.trim();
+    } else emailInput.classList.remove('is-invalid');
+    const email = emailInput.value.trim();
     await sendOtpFlow(forgotPasswordBtn, email, 'Password Recovery');
 });
 if (verifyEmailBtn.length) verifyEmailBtn.forEach((btn)=>btn.addEventListener('click', async ()=>{
+        btn.disabled = true;
         const email = btn.dataset.email.trim();
         await sendOtpFlow(btn, email, 'Email Confirmation');
     }));
@@ -918,11 +945,10 @@ const register = async (body)=>{
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
         (0, _alertsJsDefault.default)('success', dataSend.message);
-        setTimeout(()=>{
-            location.assign('/messages');
-        }, 2000);
+        return true;
     } catch (err) {
         (0, _alertsJsDefault.default)('error', err.message);
+        return false;
     }
 };
 const login = async (body)=>{
@@ -941,11 +967,10 @@ const login = async (body)=>{
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
         (0, _alertsJsDefault.default)('success', dataSend.message);
-        setTimeout(()=>{
-            location.assign('/messages');
-        }, 1500);
+        return true;
     } catch (err) {
         (0, _alertsJsDefault.default)('error', err.message);
+        return false;
     }
 };
 const logout = async ()=>{
@@ -1022,9 +1047,10 @@ const resetPassword = async (body)=>{
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
         (0, _alertsJsDefault.default)('success', dataSend.message);
-        setTimeout(()=>location.assign('/'), 1500);
+        return true;
     } catch (err) {
         (0, _alertsJsDefault.default)('error', err.message);
+        return false;
     }
 };
 const verifyEmail = async (body)=>{
@@ -1151,7 +1177,7 @@ const handleOtpVerification = async (email, otp, purpose)=>{
 const handlePasswordReset = async (email, otp)=>{
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('password-confirm').value;
-    await (0, _authJs.resetPassword)({
+    return await (0, _authJs.resetPassword)({
         email,
         otp,
         password,

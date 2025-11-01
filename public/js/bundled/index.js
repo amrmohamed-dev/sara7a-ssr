@@ -724,7 +724,6 @@ const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
 const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
 const updatePasswordForm = document.querySelector('.form--update-password');
 const userDataForm = document.querySelector('.form--user-data');
-const deleteMyAccount = document.getElementById('deleteAccountBtn');
 const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -871,19 +870,18 @@ if (userDataForm) userDataForm.addEventListener('submit', async (e)=>{
     if (savingStatus) setTimeout(()=>location.reload(), 1100);
     else saveDataBtn.disabled = false;
 });
-if (deleteMyAccount) deleteMyAccount.addEventListener('click', ()=>{
-    const modal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
-    modal.show();
-});
 if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async ()=>{
     confirmDeleteBtn.textContent = 'Deleting...';
     confirmDeleteBtn.disabled = true;
+    const deleteMyAccountBtn = document.getElementById('deleteAccountBtn');
+    deleteMyAccountBtn.disabled = true;
     const deletingStatus = await _settingsJs.deleteAccount();
     if (deletingStatus) setTimeout(()=>{
         location.assign('/');
     }, 1300);
     else {
         confirmDeleteBtn.disabled = false;
+        deleteMyAccountBtn.disabled = false;
         confirmDeleteBtn.textContent = 'Delete My Account';
     }
 });

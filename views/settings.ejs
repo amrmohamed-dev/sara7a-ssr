@@ -242,6 +242,8 @@
     type="button"
     class="btn btn-danger w-100 mt-2"
     id="deleteAccountBtn"
+    data-bs-toggle="modal"
+    data-bs-target="#deleteAccountModal"
   >
     Delete My Account
   </button>
@@ -251,7 +253,7 @@
     <div class="modal-content rounded-3 border-0">
       <div class="modal-header border-0">
         <h5 class="modal-title fw-semibold text-danger">Delete Account</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
       </div>
       <div class="modal-body text-center">
         <p class="text-muted mb-3">

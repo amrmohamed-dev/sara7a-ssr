@@ -87,7 +87,7 @@
   color: #10bbb3;
 }
 
-.btn-saveData {
+.btn--save-data {
   background: #00b3a4;
   color: #fff;
   border-radius: 25px;
@@ -98,7 +98,7 @@
   transition: background 0.3s ease;
 }
 
-.btn-saveData:hover {
+.btn--save-data:hover {
   background: #009688;
 }
 
@@ -115,7 +115,7 @@
   background: #00a05b;
 }
 
-.btn-saveData:disabled,
+.btn--save-data:disabled,
 .btn-success:disabled {
   background: #cfd3e1;
   cursor: not-allowed;
@@ -169,7 +169,7 @@
       </div>
 
       <button
-        class="btn btn-saveData mt-3"
+        class="btn btn--save-data mt-3"
         <%= !user.isVerified ? 'disabled' : '' %>
       >
         Save Changes
@@ -236,6 +236,40 @@
       </button>
     </form>
   </div>
+  <!-- Delete Account -->
+  <hr class="my-4" />
+  <button
+    type="button"
+    class="btn btn-danger w-100 mt-2"
+    id="deleteAccountBtn"
+  >
+    Delete My Account
+  </button>
+  <!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 border-0">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-semibold text-danger">Delete Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-muted mb-3">
+          <strong>Are you sure you want to delete your account?</strong><br />
+          This action cannot be undone, and all your data will be permanently removed.
+        </p>
+        <div class="d-grid gap-3 mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteAccount">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- OTP Modal -->

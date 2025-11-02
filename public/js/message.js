@@ -24,8 +24,10 @@ const sendMsg = async (body) => {
     }
 
     showAlert('success', 'Your message sent successfully');
+    return true;
   } catch (err) {
     showAlert('error', err.message);
+    return false;
   }
 };
 

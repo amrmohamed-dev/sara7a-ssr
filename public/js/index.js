@@ -290,8 +290,14 @@ if (sendMsgForm) {
     const sendMsgBtn = document.querySelector('.btn--send-msg');
     sendMsgBtn.textContent = 'Sending....';
     sendMsgBtn.disabled = true;
-    await sendMsg({ text, receiver });
-    sendMsgBtn.textContent = 'Send';
+    textarea.disabled = true;
+    const sendingStatus = await sendMsg({ text, receiver });
+    textarea.disabled = false;
     sendMsgBtn.disabled = false;
+    sendMsgBtn.textContent = 'Send';
+    if (sendingStatus) {
+      textarea.value = '';
+      updateCount();
+    }
   });
 }

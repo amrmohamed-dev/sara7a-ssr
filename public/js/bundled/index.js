@@ -931,12 +931,18 @@ if (sendMsgForm) {
         const sendMsgBtn = document.querySelector('.btn--send-msg');
         sendMsgBtn.textContent = 'Sending....';
         sendMsgBtn.disabled = true;
-        await (0, _messageJs.sendMsg)({
+        textarea.disabled = true;
+        const sendingStatus = await (0, _messageJs.sendMsg)({
             text,
             receiver
         });
-        sendMsgBtn.textContent = 'Send';
+        textarea.disabled = false;
         sendMsgBtn.disabled = false;
+        sendMsgBtn.textContent = 'Send';
+        if (sendingStatus) {
+            textarea.value = '';
+            updateCount();
+        }
     });
 }
 
@@ -1317,8 +1323,10 @@ const sendMsg = async (body)=>{
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
         (0, _alertsDefault.default)('success', 'Your message sent successfully');
+        return true;
     } catch (err) {
         (0, _alertsDefault.default)('error', err.message);
+        return false;
     }
 };
 

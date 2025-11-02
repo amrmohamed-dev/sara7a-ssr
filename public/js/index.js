@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import { login, register, logout } from './auth.js';
+import { sendMsg } from './message.js';
 import * as otpUtils from './otpUtils.js';
 import * as settings from './settings.js';
 
@@ -15,6 +16,7 @@ const updatePasswordForm = document.querySelector(
 );
 const userDataForm = document.querySelector('.form--user-data');
 const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
+const sendMsgForm = document.querySelector('.form--send-msg');
 
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -267,5 +269,29 @@ if (confirmDeleteBtn) {
       deleteMyAccountBtn.disabled = false;
       confirmDeleteBtn.textContent = 'Delete My Account';
     }
+  });
+}
+
+if (sendMsgForm) {
+  const textarea = document.getElementById('msg');
+  const remaining = document.getElementById('remaining');
+  const updateCount = () => {
+    const charsLeft = 500 - textarea.value.length;
+    remaining.textContent = charsLeft;
+    remaining.style.color = charsLeft < 50 ? 'red' : '#6c757d';
+  };
+  setTimeout(updateCount, 50);
+
+  textarea.addEventListener('input', updateCount);
+  sendMsgForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = textarea.value;
+    const receiver = document.getElementById('receiver').value;
+    const sendMsgBtn = document.querySelector('.btn--send-msg');
+    sendMsgBtn.textContent = 'Sending....';
+    sendMsgBtn.disabled = true;
+    await sendMsg({ text, receiver });
+    sendMsgBtn.textContent = 'Send';
+    sendMsgBtn.disabled = false;
   });
 }

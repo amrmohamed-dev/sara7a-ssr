@@ -714,6 +714,7 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 
 },{}],"2VqTL":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var _authJs = require("./auth.js");
+var _messageJs = require("./message.js");
 var _otpUtilsJs = require("./otpUtils.js");
 var _settingsJs = require("./settings.js");
 const registerForm = document.querySelector('.form--register');
@@ -725,6 +726,7 @@ const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
 const updatePasswordForm = document.querySelector('.form--update-password');
 const userDataForm = document.querySelector('.form--user-data');
 const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
+const sendMsgForm = document.querySelector('.form--send-msg');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const registerBtn = document.querySelector('.btn--register');
@@ -912,8 +914,33 @@ if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async ()=>{
         confirmDeleteBtn.textContent = 'Delete My Account';
     }
 });
+if (sendMsgForm) {
+    const textarea = document.getElementById('msg');
+    const remaining = document.getElementById('remaining');
+    const updateCount = ()=>{
+        const charsLeft = 500 - textarea.value.length;
+        remaining.textContent = charsLeft;
+        remaining.style.color = charsLeft < 50 ? 'red' : '#6c757d';
+    };
+    setTimeout(updateCount, 50);
+    textarea.addEventListener('input', updateCount);
+    sendMsgForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const text = textarea.value;
+        const receiver = document.getElementById('receiver').value;
+        const sendMsgBtn = document.querySelector('.btn--send-msg');
+        sendMsgBtn.textContent = 'Sending....';
+        sendMsgBtn.disabled = true;
+        await (0, _messageJs.sendMsg)({
+            text,
+            receiver
+        });
+        sendMsgBtn.textContent = 'Send';
+        sendMsgBtn.disabled = false;
+    });
+}
 
-},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV"}],"4GNGB":[function(require,module,exports,__globalThis) {
+},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV","./message.js":"dQrWs"}],"4GNGB":[function(require,module,exports,__globalThis) {
 /*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "register", ()=>register);
@@ -1267,6 +1294,34 @@ const deleteAccount = async ()=>{
     }
 };
 
-},{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
+},{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"dQrWs":[function(require,module,exports,__globalThis) {
+/* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "sendMsg", ()=>sendMsg);
+var _alerts = require("./alerts");
+var _alertsDefault = parcelHelpers.interopDefault(_alerts);
+const baseUrl = '/api/v1/messages/';
+const sendMsg = async (body)=>{
+    try {
+        const { text, receiver } = body;
+        const response = await fetch(baseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text,
+                receiver
+            })
+        });
+        const dataSend = await response.json();
+        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
+        (0, _alertsDefault.default)('success', 'Your message sent successfully');
+    } catch (err) {
+        (0, _alertsDefault.default)('error', err.message);
+    }
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./alerts":"iFS3s"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
 
 //# sourceMappingURL=index.js.map

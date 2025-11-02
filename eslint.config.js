@@ -47,6 +47,7 @@ export default [
       ],
       'prettier/prettier': ['warn', { endOfLine: 'auto' }],
       'spaced-comment': 'off',
+      'no-plusplus': 'off',
       'no-console': 'warn',
       'consistent-return': 'off',
       'func-names': 'off',

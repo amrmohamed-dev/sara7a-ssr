@@ -64,6 +64,7 @@ const getPublicUserPage = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
   res.status(200).render('publicUser', {
     title: `${user.name}-send me a Sara7a message`,
+    publicUser: user,
   });
 });
 

@@ -1,4 +1,6 @@
 import Message from '../models/message.model.js';
+import User from '../models/user.model.js';
+import AppError from '../utils/error/appError.js';
 import catchAsync from '../utils/error/catchAsync.js';
 
 const getHome = (req, res) => {
@@ -52,6 +54,19 @@ const getMyMsgsPage = catchAsync(async (req, res, next) => {
   });
 });
 
+const getPublicUserPage = catchAsync(async (req, res, next) => {
+  const { username } = req.params;
+  const user = await User.findOne({ username });
+  if (!user) {
+    return next(new AppError('No user found with that username', 404));
+  }
+  user.visitsCount++;
+  await user.save({ validateBeforeSave: false });
+  res.status(200).render('publicUser', {
+    title: `${user.name}-send me a Sara7a message`,
+  });
+});
+
 export {
   getHome,
   getRegisterForm,
@@ -59,4 +74,5 @@ export {
   getForgotPasswordForm,
   getMySettingsPage,
   getMyMsgsPage,
+  getPublicUserPage,
 };

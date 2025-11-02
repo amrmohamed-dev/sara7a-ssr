@@ -22,4 +22,6 @@ viewRouter.get('/login', viewController.getLoginForm);
 viewRouter.get('/register', viewController.getRegisterForm);
 viewRouter.get('/forgot-password', viewController.getForgotPasswordForm);
 
+viewRouter.get('/u/:username', viewController.getPublicUserPage);
+
 export default viewRouter;

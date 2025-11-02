@@ -177,7 +177,10 @@
       <!-- User Stats -->
       <div class="user-stats mt-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap text-muted small">
-          <span><i class="fas fa-users me-2 text-primary"></i>Visitors: <strong><%= user.visitorsCount || 0 %></strong></span>
+          <span>
+            <i class="fas fa-users me-2 text-primary"></i>
+            Number of visits: <strong><%= user.visitsCount || 0 %></strong>
+          </span>
           <span><i class="far fa-calendar-alt me-2 text-success"></i>Joined: 
             <strong>
               <%= new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>

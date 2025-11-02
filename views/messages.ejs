@@ -12,7 +12,8 @@
         alt="User Photo" 
       />
     </a>
-    <h3 class="py-2 mb-3"><%= user?.name %></h3>
+    <h3><%= user?.name %></h3>
+    <p class="text-muted">@<%= user?.username %></p>
 
     <button data-bs-toggle="modal" data-bs-target="#share" class="btn btn-default-outline rounded-pill px-4">
       <i class="fas fa-share-alt"></i> Share Profile
@@ -30,7 +31,7 @@
         <div class="modal-body">
           <p class="mb-3 text-muted">Copy and share your public profile link and start receiving messages</p>
           <div class="input-group mb-3">
-            <input type="text" readonly class="form-control text-center" value="<%= `${fullUrl}/${user?.username}` %>" id="profileLink">
+            <input type="text" readonly class="form-control text-center" value="<%= `${fullUrl}/u/${user?.username}` %>" id="profileLink">
             <button class="btn btn-default-outline" id="copyBtn">Copy</button>
           </div>
         </div>

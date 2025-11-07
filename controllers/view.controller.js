@@ -56,7 +56,7 @@ const getMyMsgsPage = catchAsync(async (req, res, next) => {
 
 const getPublicUserPage = catchAsync(async (req, res, next) => {
   const { username } = req.params;
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username }).populate('msgsCount');
   if (!user) {
     return next(new AppError('No user found with that username', 404));
   }

@@ -64,7 +64,11 @@
           value="<%= publicUser?._id %>"
         />
 
-        <button class="btn btn-info btn-lg mt-3 w-100 btn--send-msg">
+        <p class="notify text-danger <%= publicUser.msgsCount < 5 ? 'd-none' : '' %>" >
+          <%= publicUser.name %> cannot receiver more messages
+        </p>
+
+        <button class="btn btn-info btn-lg mt-3 w-100 btn--send-msg <%= publicUser.msgsCount >= 5 ? 'd-none' : '' %>" >
           <i class="far fa-paper-plane"></i> Send
         </button>
 

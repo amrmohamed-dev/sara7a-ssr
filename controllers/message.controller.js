@@ -14,6 +14,12 @@ const setReceiverId = catchAsync(async (req, res, next) => {
 
 const createMsg = catchAsync(async (req, res, next) => {
   const { text, receiver } = req.body;
+  const user = await User.findById(receiver).populate('msgsCount');
+  if (!user.isVerified && user.msgsCount >= 5) {
+    return next(
+      new AppError(`${user.name} cannot receive more messages`, 403),
+    );
+  }
   const msg = await Message.create({ text, receiver });
   res.status(201).json({
     status: 'success',

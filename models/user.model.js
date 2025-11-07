@@ -79,16 +79,18 @@ const hiddenFields = (doc, ret) => {
   return ret;
 };
 
-userSchema.virtual('msgs', {
+userSchema.virtual('msgsCount', {
+  ref: 'Message',
   foreignField: 'receiver',
   localField: '_id',
+  count: true,
 });
 
-userSchema.set('toJSON', { transform: hiddenFields });
-userSchema.set('toObject', { transform: hiddenFields });
+userSchema.set('toJSON', { virtuals: true, transform: hiddenFields });
+userSchema.set('toObject', { virtuals: true, transform: hiddenFields });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) next();
+  if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
   next();
@@ -104,7 +106,7 @@ userSchema.pre('save', function (next) {
 userSchema.pre('findOneAndDelete', async function (next) {
   const user = await this.model.findOne(this.getFilter());
   if (user) {
-    await mongoose.model('Message').deleteMany({ user: user._id });
+    await mongoose.model('Message').deleteMany({ receiver: user._id });
   }
   next();
 });
@@ -115,8 +117,8 @@ userSchema.pre(/^find/, function (next) {
 });
 
 userSchema.post('init', (doc) => {
-  if (doc.image) {
-    doc.image = `https://sara7a-f2bjez6wr-amr-mohammeds-projects.vercel.app/img/users/${doc.image}`;
+  if (doc.photo) {
+    doc.photo = `https://sara7a-f2bjez6wr-amr-mohammeds-projects.vercel.app/img/users/${doc.photo}`;
   }
 });
 
@@ -132,12 +134,12 @@ userSchema.methods.generateOtp = function (otpPurpose) {
   return otp;
 };
 
-userSchema.methods.changedPasswordAfter = function (jwtTimpestamps) {
+userSchema.methods.changedPasswordAfter = function (jwtIat) {
   if (this.passwordChangedAt) {
-    const passwordChangedTimestamps = Math.floor(
+    const passwordChangedTimestamp = Math.floor(
       this.passwordChangedAt.getTime() / 1000,
     );
-    return passwordChangedTimestamps > jwtTimpestamps;
+    return passwordChangedTimestamp > jwtIat;
   }
   return false;
 };

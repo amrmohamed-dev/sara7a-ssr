@@ -65,7 +65,7 @@
         />
 
         <p class="notify text-danger <%= publicUser.msgsCount < 5 ? 'd-none' : '' %>" >
-          <%= publicUser.name %> cannot receiver more messages
+          <%= publicUser.name %> cannot receive more messages
         </p>
 
         <button class="btn btn-info btn-lg mt-3 w-100 btn--send-msg <%= publicUser.msgsCount >= 5 ? 'd-none' : '' %>" >

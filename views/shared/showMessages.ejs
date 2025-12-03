@@ -1,0 +1,41 @@
+  <div class="msgs-count-badge">
+    All Messages: <span id="msgs-count"><%= msgs.length || 0 %></span>
+  </div>
+
+  <% if (!msgs?.length) { %>
+    <div class="empty-state shadow-sm text-center py-4">
+      You don't have any <%= id %> messages yet...
+    </div>
+  <% } else { %>
+    <% msgs.forEach(msg => { %>
+      <div class="message-card shadow-sm p-3 mb-3 rounded">
+        <small class="text-muted d-block mb-2"> <%= timeSince(msg.createdAt) %></small>
+        <hr class="p-2">
+        <p class="mb-2 fs-5 al text-center"><%= msg.text %></p>
+        <hr class="w-50">
+        <div class="d-flex justify-content-end gap-2">
+          <!-- Copy -->
+          <button class="btn btn-outline-secondary btn-sm copy-btn" data-text="<%= msg.text %>">
+            <i class="far fa-copy"></i> Copy
+          </button>
+
+          <!-- Add to Favourite -->
+          <form class="fav-form" data-msgid="<%= msg._id %>">
+            <button type="submit" 
+              class="btn btn-outline-warning btn-sm"
+              title="Add to Favourite">
+              <i class="fas fa-star" style="color: <%= user.favouriteMsgs.some((id)=>id.equals(msg._id)) ? '#f1c40f' : '#b8b8b8' %>"></i>
+            </button>
+          </form>
+
+          <!-- Delete -->
+          <form class="d-inline form--deleteonemsg" data-msgid="<%= msg._id %>">
+            <button type="submit" class="btn btn-outline-danger btn-sm btn-delete">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+

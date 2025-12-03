@@ -19,6 +19,35 @@ const MessageSchema = new mongoose.Schema(
   },
 );
 
+MessageSchema.pre('findOneAndDelete', async function (next) {
+  try {
+    const userId = this._conditions.receiver;
+    const msgId = this._conditions._id;
+
+    await mongoose
+      .model('User')
+      .updateMany({ _id: userId }, { $pull: { favouriteMsgs: msgId } });
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+MessageSchema.pre('deleteMany', async function (next) {
+  try {
+    const userId = this._conditions.receiver;
+
+    await mongoose
+      .model('User')
+      .updateMany({ _id: userId }, { $set: { favouriteMsgs: [] } });
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 const Message = mongoose.model('Message', MessageSchema);
 
 export default Message;

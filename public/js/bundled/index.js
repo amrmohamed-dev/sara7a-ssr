@@ -713,7 +713,10 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 }
 
 },{}],"2VqTL":[function(require,module,exports,__globalThis) {
-/* eslint-disable */ var _authJs = require("./auth.js");
+/* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _alertsJs = require("./alerts.js");
+var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
+var _authJs = require("./auth.js");
 var _messageJs = require("./message.js");
 var _otpUtilsJs = require("./otpUtils.js");
 var _settingsJs = require("./settings.js");
@@ -725,8 +728,9 @@ const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
 const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
 const updatePasswordForm = document.querySelector('.form--update-password');
 const userDataForm = document.querySelector('.form--user-data');
-const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
+const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccount');
 const sendMsgForm = document.querySelector('.form--send-msg');
+const msgsSection = document.querySelector('.messages-section');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const registerBtn = document.querySelector('.btn--register');
@@ -899,9 +903,9 @@ if (userDataForm) userDataForm.addEventListener('submit', async (e)=>{
     if (savingStatus) setTimeout(()=>location.reload(), 1100);
     else saveDataBtn.disabled = false;
 });
-if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async ()=>{
-    confirmDeleteBtn.textContent = 'Deleting...';
-    confirmDeleteBtn.disabled = true;
+if (confirmDeleteAccountBtn) confirmDeleteAccountBtn.addEventListener('click', async ()=>{
+    confirmDeleteAccountBtn.textContent = 'Deleting...';
+    confirmDeleteAccountBtn.disabled = true;
     const deleteMyAccountBtn = document.getElementById('deleteAccountBtn');
     deleteMyAccountBtn.disabled = true;
     const deletingStatus = await _settingsJs.deleteAccount();
@@ -909,9 +913,9 @@ if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async ()=>{
         location.assign('/');
     }, 1300);
     else {
-        confirmDeleteBtn.disabled = false;
+        confirmDeleteAccountBtn.disabled = false;
         deleteMyAccountBtn.disabled = false;
-        confirmDeleteBtn.textContent = 'Delete My Account';
+        confirmDeleteAccountBtn.textContent = 'Delete My Account';
     }
 });
 if (sendMsgForm) {
@@ -945,8 +949,39 @@ if (sendMsgForm) {
         }
     });
 }
+if (msgsSection) {
+    // Sort Messages
+    document.getElementById('sort').addEventListener('change', function() {
+        loadTabMessages('received');
+    });
+    loadTabMessages('received');
+    document.getElementById('received-tab').addEventListener('click', ()=>{
+        loadTabMessages('received');
+    });
+    document.getElementById('fav-tab').addEventListener('click', ()=>{
+        loadTabMessages('favourite');
+    });
+}
+async function loadTabMessages(type) {
+    const sortValue = document.getElementById('sort').value;
+    const tabEl = document.getElementById(type);
+    const overlay = document.getElementById('loadingAnim');
+    const ctrls = document.getElementById('received-ctrls');
+    ctrls.classList.toggle('d-none', type !== 'received');
+    ctrls.classList.toggle('d-flex', type === 'received');
+    overlay.classList.add('d-flex');
+    try {
+        const res = await fetch(`/messages?tab=${type}&sort=${sortValue}`);
+        const html = await res.text();
+        tabEl.innerHTML = html;
+    } catch (err) {
+        (0, _alertsJsDefault.default)('error', 'Could not load messages. Please try again later.');
+    } finally{
+        overlay.classList.remove('d-flex');
+    }
+}
 
-},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV","./message.js":"dQrWs"}],"4GNGB":[function(require,module,exports,__globalThis) {
+},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV","./message.js":"dQrWs","./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"4GNGB":[function(require,module,exports,__globalThis) {
 /*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "register", ()=>register);
@@ -1276,8 +1311,8 @@ const updateUserPassword = async (body)=>{
 const updateSettings = async (body, type)=>{
     try {
         const response = type === 'data' ? await updateUserData(body) : await updateUserPassword(body);
-        const dataSend1 = await response.json();
-        if (!response.ok) throw new Error(dataSend1.message || 'Something went wrong');
+        const dataSend = await response.json();
+        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
         (0, _alertsJsDefault.default)('success', `${type.toUpperCase()} was updated successfully!`);
         return true;
     } catch (err) {
@@ -1291,7 +1326,10 @@ const deleteAccount = async ()=>{
         const response = await fetch(baseUrl, {
             method: 'DELETE'
         });
-        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Something went wrong');
+        }
         (0, _alertsJsDefault.default)('success', `Your account was deleted successfully!`);
         return true;
     } catch (err) {
@@ -1304,6 +1342,9 @@ const deleteAccount = async ()=>{
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "sendMsg", ()=>sendMsg);
+parcelHelpers.export(exports, "toggleFavourite", ()=>toggleFavourite);
+parcelHelpers.export(exports, "deleteOneMsg", ()=>deleteOneMsg);
+parcelHelpers.export(exports, "deleteAllMsgs", ()=>deleteAllMsgs);
 var _alerts = require("./alerts");
 var _alertsDefault = parcelHelpers.interopDefault(_alerts);
 const baseUrl = '/api/v1/messages/';
@@ -1329,7 +1370,54 @@ const sendMsg = async (body)=>{
         return false;
     }
 };
+const toggleFavourite = async (body)=>{
+    try {
+        const { msgId } = body;
+        const response = await fetch(`/api/v1/users/messages/favourite/${msgId}`, {
+            method: 'PATCH'
+        });
+        const dataSend = await response.json();
+        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
+        (0, _alertsDefault.default)('success', dataSend.message);
+        return true;
+    } catch (err) {
+        (0, _alertsDefault.default)('error', err.message);
+        return false;
+    }
+};
+const deleteOneMsg = async (body)=>{
+    try {
+        const { msgId } = body;
+        const response = await fetch(`${baseUrl}${msgId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Something went wrong');
+        }
+        return true;
+    } catch (err) {
+        (0, _alertsDefault.default)('error', err.message);
+        return false;
+    }
+};
+const deleteAllMsgs = async ()=>{
+    try {
+        const response = await fetch(baseUrl, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Something went wrong');
+        }
+        (0, _alertsDefault.default)('success', 'All messages deleted successfully');
+        return true;
+    } catch (err) {
+        (0, _alertsDefault.default)('error', err.message);
+        return false;
+    }
+};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./alerts":"iFS3s"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
+},{"./alerts":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
 
 //# sourceMappingURL=index.js.map

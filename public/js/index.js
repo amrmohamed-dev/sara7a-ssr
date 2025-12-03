@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+import showAlert from './alerts.js';
 import { login, register, logout } from './auth.js';
 import { sendMsg } from './message.js';
 import * as otpUtils from './otpUtils.js';
@@ -15,8 +16,11 @@ const updatePasswordForm = document.querySelector(
   '.form--update-password',
 );
 const userDataForm = document.querySelector('.form--user-data');
-const confirmDeleteBtn = document.getElementById('confirmDeleteAccount');
+const confirmDeleteAccountBtn = document.getElementById(
+  'confirmDeleteAccount',
+);
 const sendMsgForm = document.querySelector('.form--send-msg');
+const msgsSection = document.querySelector('.messages-section');
 
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -253,10 +257,10 @@ if (userDataForm) {
   });
 }
 
-if (confirmDeleteBtn) {
-  confirmDeleteBtn.addEventListener('click', async () => {
-    confirmDeleteBtn.textContent = 'Deleting...';
-    confirmDeleteBtn.disabled = true;
+if (confirmDeleteAccountBtn) {
+  confirmDeleteAccountBtn.addEventListener('click', async () => {
+    confirmDeleteAccountBtn.textContent = 'Deleting...';
+    confirmDeleteAccountBtn.disabled = true;
     const deleteMyAccountBtn = document.getElementById('deleteAccountBtn');
     deleteMyAccountBtn.disabled = true;
     const deletingStatus = await settings.deleteAccount();
@@ -265,9 +269,9 @@ if (confirmDeleteBtn) {
         location.assign('/');
       }, 1300);
     } else {
-      confirmDeleteBtn.disabled = false;
+      confirmDeleteAccountBtn.disabled = false;
       deleteMyAccountBtn.disabled = false;
-      confirmDeleteBtn.textContent = 'Delete My Account';
+      confirmDeleteAccountBtn.textContent = 'Delete My Account';
     }
   });
 }
@@ -300,4 +304,44 @@ if (sendMsgForm) {
       updateCount();
     }
   });
+}
+
+if (msgsSection) {
+  // Sort Messages
+  document.getElementById('sort').addEventListener('change', function () {
+    loadTabMessages('received');
+  });
+
+  loadTabMessages('received');
+
+  document.getElementById('received-tab').addEventListener('click', () => {
+    loadTabMessages('received');
+  });
+
+  document.getElementById('fav-tab').addEventListener('click', () => {
+    loadTabMessages('favourite');
+  });
+}
+
+async function loadTabMessages(type) {
+  const sortValue = document.getElementById('sort').value;
+  const tabEl = document.getElementById(type);
+  const overlay = document.getElementById('loadingAnim');
+  const ctrls = document.getElementById('received-ctrls');
+
+  ctrls.classList.toggle('d-none', type !== 'received');
+  ctrls.classList.toggle('d-flex', type === 'received');
+
+  overlay.classList.add('d-flex');
+
+  try {
+    const res = await fetch(`/messages?tab=${type}&sort=${sortValue}`);
+    const html = await res.text();
+
+    tabEl.innerHTML = html;
+  } catch (err) {
+    showAlert('error', 'Could not load messages. Please try again later.');
+  } finally {
+    overlay.classList.remove('d-flex');
+  }
 }

@@ -31,12 +31,18 @@ app.disable('x-powered-by');
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+      defaultSrc: [
+        "'self'",
+        'https://cdn.jsdelivr.net',
+        'https://lottie.host',
+      ],
       scriptSrc: [
         "'self'",
         'https://cdn.jsdelivr.net',
         'https://cdnjs.cloudflare.com',
+        'https://lottie.host',
         "'unsafe-inline'",
+        "'unsafe-eval'",
         'blob:',
         'data:',
       ],
@@ -47,7 +53,7 @@ app.use(
         "'unsafe-inline'",
       ],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
     },
   }),
 );

@@ -950,6 +950,37 @@ if (sendMsgForm) {
     });
 }
 if (msgsSection) {
+    let deleteAllMsgsForm = document.querySelector('.form--deleteallmsgs');
+    deleteAllMsgsForm.replaceWith(deleteAllMsgsForm.cloneNode(true));
+    deleteAllMsgsForm = document.querySelector('.form--deleteallmsgs');
+    deleteAllMsgsForm.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        confirmDeleteModal.show();
+        let confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteBtn.replaceWith(confirmDeleteBtn.cloneNode(true));
+        confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteBtn.addEventListener('click', async ()=>{
+            const msgCards = document.querySelectorAll('.message-card');
+            if (!msgCards.length) {
+                (0, _alertsJsDefault.default)('error', 'No messages to delete');
+                return;
+            }
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.textContent = 'Deleting...';
+            const overlay = document.getElementById('loadingAnim');
+            overlay.classList.add('d-flex');
+            confirmDeleteModal.hide();
+            const deleteStatus = await (0, _messageJs.deleteAllMsgs)();
+            if (deleteStatus) loadTabMessages('received');
+            else {
+                (0, _alertsJsDefault.default)('error', 'Could not delete messages');
+                overlay.classList.remove('d-flex');
+            }
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = 'Delete';
+        });
+    });
     // Sort Messages
     document.getElementById('sort').addEventListener('change', function() {
         loadTabMessages('received');
@@ -960,6 +991,89 @@ if (msgsSection) {
     });
     document.getElementById('fav-tab').addEventListener('click', ()=>{
         loadTabMessages('favourite');
+    });
+}
+function attachCopyEvents() {
+    let copyBtns = document.querySelectorAll('.copy-btn');
+    copyBtns.forEach((btn)=>{
+        btn.replaceWith(btn.cloneNode(true));
+    });
+    copyBtns = document.querySelectorAll('.copy-btn');
+    copyBtns.forEach((btn)=>{
+        btn.addEventListener('click', ()=>{
+            navigator.clipboard.writeText(btn.dataset.text);
+            btn.innerHTML = '<i class="fas fa-check text-success"></i> Copied!';
+            setTimeout(()=>btn.innerHTML = '<i class="far fa-copy"></i> Copy', 1500);
+        });
+    });
+}
+function attachFavouriteEvents() {
+    let favouriteForms = document.querySelectorAll('.fav-form');
+    favouriteForms.forEach((form)=>{
+        form.replaceWith(form.cloneNode(true));
+    });
+    favouriteForms = document.querySelectorAll('.fav-form');
+    favouriteForms.forEach((form)=>{
+        form.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const msgId = form.dataset.msgid;
+            const toggleStatus = await (0, _messageJs.toggleFavourite)({
+                msgId
+            });
+            if (toggleStatus) {
+                const icon = form.querySelector('i');
+                icon.style.color = icon.style.color === 'rgb(241, 196, 15)' ? '#b8b8b8' : '#f1c40f';
+            } else (0, _alertsJsDefault.default)('error', 'Could not update favourite status');
+        });
+    });
+}
+function attachDeleteMsgEvents(type) {
+    let deleteForms = document.querySelectorAll('.form--deleteonemsg');
+    deleteForms.forEach((form)=>{
+        form.replaceWith(form.cloneNode(true));
+    });
+    deleteForms = document.querySelectorAll('.form--deleteonemsg');
+    deleteForms.forEach((form)=>{
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            confirmDeleteModal.show();
+            let confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.replaceWith(confirmDeleteBtn.cloneNode(true));
+            confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.addEventListener('click', async ()=>{
+                const msgId = form.dataset.msgid;
+                const card = form.closest('.message-card');
+                card.querySelectorAll('button').forEach((btn)=>btn.disabled = true);
+                const originalText = confirmDeleteBtn.textContent;
+                const deleteBtn = card.querySelector('.btn-delete');
+                deleteBtn.textContent = 'Deleting...';
+                confirmDeleteBtn.disabled = true;
+                card.classList.add('removing');
+                confirmDeleteModal.hide();
+                const deleteStatus = await (0, _messageJs.deleteOneMsg)({
+                    msgId
+                });
+                if (!deleteStatus) {
+                    card.classList.remove('removing');
+                    confirmDeleteBtn.textContent = originalText;
+                    confirmDeleteBtn.disabled = false;
+                    card.querySelectorAll('button').forEach((btn)=>btn.disabled = false);
+                    deleteBtn.textContent = 'Delete';
+                    return;
+                }
+                card.remove();
+                const countEls = document.querySelectorAll('#msgs-count');
+                const countEl = type === 'favourite' ? countEls[1] : countEls[0];
+                setTimeout(()=>{
+                    const newCount = +countEl.textContent - 1;
+                    countEl.textContent = newCount;
+                    if (newCount === 0) loadTabMessages(type);
+                }, 280);
+                confirmDeleteBtn.textContent = originalText;
+                confirmDeleteBtn.disabled = false;
+            });
+        });
     });
 }
 async function loadTabMessages(type) {
@@ -974,6 +1088,9 @@ async function loadTabMessages(type) {
         const res = await fetch(`/messages?tab=${type}&sort=${sortValue}`);
         const html = await res.text();
         tabEl.innerHTML = html;
+        attachFavouriteEvents();
+        attachCopyEvents();
+        attachDeleteMsgEvents(type);
     } catch (err) {
         (0, _alertsJsDefault.default)('error', 'Could not load messages. Please try again later.');
     } finally{

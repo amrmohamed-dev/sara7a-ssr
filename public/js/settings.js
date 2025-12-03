@@ -59,7 +59,8 @@ const deleteAccount = async () => {
       method: 'DELETE',
     });
     if (!response.ok) {
-      throw new Error(dataSend.message || 'Something went wrong');
+      const errData = await response.json();
+      throw new Error(errData.message || 'Something went wrong');
     }
     showAlert('success', `Your account was deleted successfully!`);
     return true;

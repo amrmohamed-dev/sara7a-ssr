@@ -39,12 +39,11 @@ const userSchema = new mongoose.Schema(
       default: 'user',
     },
     photo: String,
-    favouriteMsgs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Message',
-      },
-    ],
+    favouriteMsgs: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Message',
+      default: [],
+    },
     visitsCount: {
       type: Number,
       default: 0,
@@ -112,14 +111,8 @@ userSchema.pre('findOneAndDelete', async function (next) {
 });
 
 userSchema.pre(/^find/, function (next) {
-  this.find({ isActive: { $ne: false } });
+  this.find({ isActive: { $ne: false } }).populate('favouriteMsgs');
   next();
-});
-
-userSchema.post('init', (doc) => {
-  if (doc.photo) {
-    doc.photo = `https://sara7a-f2bjez6wr-amr-mohammeds-projects.vercel.app/img/users/${doc.photo}`;
-  }
 });
 
 userSchema.methods.correctPassword = async function (candidatePassword) {

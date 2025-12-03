@@ -7,17 +7,23 @@ import checkVerified from '../middlewares/checkVerified.js';
 
 const userRouter = express.Router();
 
-userRouter.use(authController.isAuthenticated, checkVerified);
+userRouter.use(authController.isAuthenticated);
+
+userRouter.patch(
+  '/messages/favourite/:id',
+  userController.toggleFavourite,
+);
 
 userRouter.patch(
   '/me/update-password',
+  checkVerified,
   validation(updatePasswordSchema),
   authController.updateMyPassword,
 );
 
 userRouter
   .route('/me')
-  .patch(userController.updateMe)
+  .patch(checkVerified, userController.updateMe)
   .delete(userController.deleteMe);
 
 export default userRouter;

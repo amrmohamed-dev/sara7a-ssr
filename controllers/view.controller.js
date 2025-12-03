@@ -2,6 +2,7 @@ import Message from '../models/message.model.js';
 import User from '../models/user.model.js';
 import AppError from '../utils/error/appError.js';
 import catchAsync from '../utils/error/catchAsync.js';
+import timeSince from '../utils/timeSince.js';
 
 const getHome = (req, res) => {
   if (res.locals.user) {
@@ -46,11 +47,30 @@ const getMySettingsPage = (req, res) => {
 };
 
 const getMyMsgsPage = catchAsync(async (req, res, next) => {
+  const sort = req.query.sort === 'oldest' ? 1 : -1;
+  const { tab } = req.query;
+
   res.locals.fullUrl = `${req.protocol}://${req.host}`;
-  const msgs = await Message.find({ receiver: req.user._id });
+  let msgs = await Message.find({ receiver: req.user._id }).sort({
+    createdAt: sort,
+  });
+
+  if (tab) {
+    if (tab === 'favourite') {
+      msgs = [...req.user.favouriteMsgs];
+    }
+    return res.status(200).render('shared/showMessages', {
+      msgs,
+      id: tab,
+      timeSince,
+      layout: false,
+    });
+  }
+
   res.status(200).render('messages', {
     title: 'My messages',
     msgs,
+    sort: req.query.sort || 'newest',
   });
 });
 

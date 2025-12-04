@@ -5,36 +5,24 @@ import catchAsync from '../utils/error/catchAsync.js';
 import timeSince from '../utils/timeSince.js';
 
 const getHome = (req, res) => {
-  if (res.locals.user) {
-    return res.status(200).redirect('/messages');
-  }
   res.status(200).render('home', {
     title: 'Home page',
   });
 };
 
 const getLoginForm = (req, res) => {
-  if (res.locals.user) {
-    return res.status(200).redirect('/messages');
-  }
   res.status(200).render('auth/login', {
     title: 'Log into your account',
   });
 };
 
 const getRegisterForm = (req, res) => {
-  if (res.locals.user) {
-    return res.status(200).redirect('/messages');
-  }
   res.status(200).render('auth/register', {
     title: 'Create an account',
   });
 };
 
 const getForgotPasswordForm = (req, res) => {
-  if (res.locals.user) {
-    return res.status(200).redirect('/messages');
-  }
   res.status(200).render('auth/forgotPassword', {
     title: 'Forgotten password',
   });

@@ -20,11 +20,17 @@ viewRouter.use(authController.isLoggedIn);
 
 viewRouter.get('/u/:username', viewController.getPublicUserPage);
 
-viewRouter.use(redirectIfLoggedIn);
-
-viewRouter.get('/', viewController.getHome);
-viewRouter.get('/login', viewController.getLoginForm);
-viewRouter.get('/register', viewController.getRegisterForm);
-viewRouter.get('/forgot-password', viewController.getForgotPasswordForm);
+viewRouter.get('/', redirectIfLoggedIn, viewController.getHome);
+viewRouter.get('/login', redirectIfLoggedIn, viewController.getLoginForm);
+viewRouter.get(
+  '/register',
+  redirectIfLoggedIn,
+  viewController.getRegisterForm,
+);
+viewRouter.get(
+  '/forgot-password',
+  redirectIfLoggedIn,
+  viewController.getForgotPasswordForm,
+);
 
 export default viewRouter;

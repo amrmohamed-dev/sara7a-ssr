@@ -38,7 +38,10 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'admin'],
       default: 'user',
     },
-    photo: String,
+    photo: {
+      type: String,
+      default: '/img/users/static/avatar.png',
+    },
     favouriteMsgs: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Message',

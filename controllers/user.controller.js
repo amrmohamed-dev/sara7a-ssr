@@ -17,6 +17,39 @@ const updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+const updateProfilePhoto = catchAsync(async (req, res, next) => {
+  const { imageUrl } = req.body;
+  const { _id } = req.user;
+  const user = await User.findByIdAndUpdate(
+    _id,
+    { photo: imageUrl },
+    { new: true, runValidators: true },
+  );
+  res.status(200).json({
+    status: 'success',
+    message: 'Your photo uploaded successfully',
+    data: {
+      user,
+    },
+  });
+});
+
+const deleteProfilePhoto = catchAsync(async (req, res, next) => {
+  const { _id } = req.user;
+  const user = await User.findByIdAndUpdate(
+    _id,
+    { photo: '/img/users/static/avatar.png' },
+    { new: true, runValidators: true },
+  );
+  res.status(200).json({
+    status: 'success',
+    message: 'Your photo deleted successfully',
+    data: {
+      user,
+    },
+  });
+});
+
 const toggleFavourite = catchAsync(async (req, res, next) => {
   const { user } = req;
   const { id: msgId } = req.params;
@@ -45,4 +78,10 @@ const deleteMe = catchAsync(async (req, res, next) => {
   res.status(204).send();
 });
 
-export { updateMe, toggleFavourite, deleteMe };
+export {
+  updateMe,
+  updateProfilePhoto,
+  deleteProfilePhoto,
+  toggleFavourite,
+  deleteMe,
+};

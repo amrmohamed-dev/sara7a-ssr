@@ -4,6 +4,8 @@ import * as userController from '../controllers/user.controller.js';
 import validation from '../middlewares/validation.js';
 import { updatePasswordSchema } from '../validations/auth.validation.js';
 import checkVerified from '../middlewares/checkVerified.js';
+import fileUpload from '../middlewares/fileUpload.js';
+import uploadImage from '../controllers/uploadImage.js';
 
 const userRouter = express.Router();
 
@@ -25,5 +27,14 @@ userRouter
   .route('/me')
   .patch(checkVerified, userController.updateMe)
   .delete(userController.deleteMe);
+
+userRouter
+  .route('/me/photo')
+  .patch(
+    fileUpload('avatar'),
+    uploadImage('users'),
+    userController.updateProfilePhoto,
+  )
+  .delete(userController.deleteProfilePhoto);
 
 export default userRouter;

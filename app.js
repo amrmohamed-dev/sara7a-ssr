@@ -64,6 +64,7 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 
 app.use(cookieParser());
 app.use(express.json({ limit: '5kb' }));
+app.use(express.urlencoded({ extended: true, limit: '5kb' }));
 
 app.set('query parser', (query) => queryString.parse(query));
 

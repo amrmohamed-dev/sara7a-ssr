@@ -9,6 +9,8 @@ const MessageSchema = new mongoose.Schema(
       maxLength: [500, 'Text must not exceed 500 characters'],
       required: [true, 'Text is required.'],
     },
+    image: String,
+    imagePublicId: String,
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'Receiver is required.'],

@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '/img/users/static/avatar.png',
     },
+    photoPublicId: String,
     favouriteMsgs: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Message',

@@ -5,7 +5,7 @@ import validation from '../middlewares/validation.js';
 import { updatePasswordSchema } from '../validations/auth.validation.js';
 import checkVerified from '../middlewares/checkVerified.js';
 import fileUpload from '../middlewares/fileUpload.js';
-import uploadImage from '../controllers/uploadImage.js';
+import { uploadImage } from '../utils/cloudinary.service.js';
 
 const userRouter = express.Router();
 

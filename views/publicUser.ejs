@@ -32,7 +32,7 @@
   </p>
   <div class="card py-5 px-4 mb-5 shadow-sm">
     <img
-      src="/img/users/<%=(publicUser?.photo)? publicUser.photo: 'static/avatar.png'%>"
+      src= "<%= publicUser.photo %>"
       class="avatar mb-3"
       alt="User Photo"
     />
@@ -40,10 +40,10 @@
     <p class="text-muted">@<%= publicUser?.username %></p>
 
     <div class="container w-75 w-md-50 m-auto">
-      <form class="form form--send-msg">
+      <form class="form form--send-msg" enctype="multipart/form-data">
         <textarea
           class="form-control"
-          name="msg"
+          name="text"
           id="msg"
           cols="10"
           rows="7"
@@ -63,6 +63,28 @@
           name="receiver"
           value="<%= publicUser?._id %>"
         />
+
+        <div class="mt-3">
+          <button type="button" id="addImageBtn" class="btn btn-outline-secondary w-100">
+            <i class="fas fa-image"></i> Add Photo (optional)
+          </button>
+
+          <input 
+            type="file" 
+            id="msgImageInput" 
+            name="msgImage" 
+            accept="image/*" 
+            class="d-none"
+          />
+
+          <div id="imagePreviewDiv" class="mt-3 d-none">
+            <img src="" id="previewImg" class="img-fluid rounded" style="max-height: 200px;">
+            <button type="button" id="removeImageBtn" class="btn btn-sm btn-danger mt-2 w-100">
+              Remove Photo
+            </button>
+          </div>
+      </div>
+
 
         <p class="notify text-danger <%= !publicUser.isVerified && publicUser.msgsCount >= 5 ? '' : 'd-none' %>" >
           <%= publicUser.name %> cannot receive more messages

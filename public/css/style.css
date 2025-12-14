@@ -212,6 +212,22 @@ label {
   color: #00b3a4;
 }
 
+
+button:disabled,
+button:disabled {
+  background: #cfd3e1 !important;
+  cursor: not-allowed !important;
+}
+
+#addPhotoBtn,
+#deletePhotoBtn,
+#savePhotoBtn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+
 /*Footer*/
 .main-footer {
   background-color: #10bbb3;

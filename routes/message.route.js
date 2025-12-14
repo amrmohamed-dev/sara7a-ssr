@@ -1,10 +1,17 @@
 import express from 'express';
 import * as msgController from '../controllers/message.controller.js';
 import * as authController from '../controllers/auth.controller.js';
+import { uploadImage } from '../utils/cloudinary.service.js';
+import fileUpload from '../middlewares/fileUpload.js';
 
 const msgRouter = express.Router();
 
-msgRouter.post('/', msgController.setReceiverId, msgController.createMsg);
+msgRouter.post(
+  '/',
+  fileUpload('msgImage'),
+  uploadImage('msgs'),
+  msgController.createMsg,
+);
 
 msgRouter.use(
   authController.isAuthenticated,

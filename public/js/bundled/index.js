@@ -728,7 +728,7 @@ const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
 const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
 const updatePasswordForm = document.querySelector('.form--update-password');
 const userDataForm = document.querySelector('.form--user-data');
-const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccount');
+const addPhotoBtn = document.querySelector('#addPhotoBtn');
 const sendMsgForm = document.querySelector('.form--send-msg');
 const msgsSection = document.querySelector('.messages-section');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
@@ -903,21 +903,92 @@ if (userDataForm) userDataForm.addEventListener('submit', async (e)=>{
     if (savingStatus) setTimeout(()=>location.reload(), 1100);
     else saveDataBtn.disabled = false;
 });
-if (confirmDeleteAccountBtn) confirmDeleteAccountBtn.addEventListener('click', async ()=>{
-    confirmDeleteAccountBtn.textContent = 'Deleting...';
-    confirmDeleteAccountBtn.disabled = true;
-    const deleteMyAccountBtn = document.getElementById('deleteAccountBtn');
-    deleteMyAccountBtn.disabled = true;
-    const deletingStatus = await _settingsJs.deleteAccount();
-    if (deletingStatus) setTimeout(()=>{
-        location.assign('/');
-    }, 1300);
-    else {
-        confirmDeleteAccountBtn.disabled = false;
-        deleteMyAccountBtn.disabled = false;
-        confirmDeleteAccountBtn.textContent = 'Delete My Account';
-    }
-});
+if (addPhotoBtn) {
+    const deletePhotoBtn = document.querySelector('#deletePhotoBtn');
+    const savePhotoBtn = document.querySelector('#savePhotoBtn');
+    const profilePhotoInput = document.querySelector('#profilePhotoInput');
+    const profilePhotoPreview = document.querySelector('#profilePhotoPreview');
+    let selectedPhotoFile = null;
+    addPhotoBtn.addEventListener('click', ()=>profilePhotoInput.click());
+    profilePhotoInput?.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        selectedPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = ()=>{
+            profilePhotoPreview.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+        addPhotoBtn.textContent = 'Change Photo';
+        savePhotoBtn.classList.remove('d-none');
+    });
+    savePhotoBtn?.addEventListener('click', async ()=>{
+        if (!selectedPhotoFile) return;
+        savePhotoBtn.textContent = 'Uploading...';
+        savePhotoBtn.disabled = true;
+        if (deletePhotoBtn) deletePhotoBtn.disabled = true;
+        addPhotoBtn.disabled = true;
+        const uploadStatus = await _settingsJs.handleOneImage('PATCH', selectedPhotoFile);
+        if (uploadStatus) setTimeout(()=>location.reload(), 1100);
+        else {
+            savePhotoBtn.textContent = 'Save Photo';
+            savePhotoBtn.disabled = false;
+            if (deletePhotoBtn) deletePhotoBtn.disabled = false;
+            addPhotoBtn.disabled = false;
+        }
+    });
+    deletePhotoBtn?.addEventListener('click', async ()=>{
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        setModalContent('Delete Photo', `<strong>Are you sure you want to delete your profile photo?</strong><br/>This action cannot be undone.`);
+        modal.show();
+        let confirmDeletePhotoBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeletePhotoBtn.replaceWith(confirmDeletePhotoBtn.cloneNode(true));
+        confirmDeletePhotoBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeletePhotoBtn?.addEventListener('click', async ()=>{
+            modal.hide();
+            deletePhotoBtn.textContent = 'Deleting...';
+            deletePhotoBtn.disabled = true;
+            if (savePhotoBtn) savePhotoBtn.disabled = true;
+            if (addPhotoBtn) addPhotoBtn.disabled = true;
+            const handlingStatus = await _settingsJs.handleOneImage('DELETE');
+            if (handlingStatus) setTimeout(()=>location.reload(), 1100);
+            else {
+                deletePhotoBtn.textContent = 'Delete';
+                deletePhotoBtn.disabled = true;
+                if (savePhotoBtn) savePhotoBtn.disabled = true;
+                if (addPhotoBtn) addPhotoBtn.disabled = true;
+            }
+        });
+    });
+    // Delete Account
+    let deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    deleteAccountBtn.addEventListener('click', async ()=>{
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        setModalContent('Delete Account', `<strong>Are you sure you want to delete your account?</strong><br/>This action will remove all your data permanently.`);
+        modal.show();
+        let confirmDeleteAccountBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteAccountBtn.replaceWith(confirmDeleteAccountBtn.cloneNode(true));
+        confirmDeleteAccountBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteAccountBtn?.addEventListener('click', async ()=>{
+            modal.hide();
+            deleteAccountBtn.textContent = 'Deleting...';
+            deleteAccountBtn.disabled = true;
+            const deletingStatus = await _settingsJs.deleteAccount();
+            if (deletingStatus) setTimeout(()=>{
+                location.assign('/');
+            }, 1300);
+            else {
+                confirmDeleteAccountBtn.disabled = false;
+                deleteAccountBtn.disabled = false;
+                deleteAccountBtn.textContent = 'Delete My Account';
+            }
+        });
+    });
+}
+function setModalContent(title, message) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').innerHTML = message;
+}
 if (sendMsgForm) {
     const textarea = document.getElementById('msg');
     const remaining = document.getElementById('remaining');
@@ -928,24 +999,48 @@ if (sendMsgForm) {
     };
     setTimeout(updateCount, 50);
     textarea.addEventListener('input', updateCount);
-    sendMsgForm.addEventListener('submit', async (e)=>{
+    const addImageBtn = document.querySelector('#addImageBtn');
+    const msgImageInput = document.querySelector('#msgImageInput');
+    const imagePreviewDiv = document.querySelector('#imagePreviewDiv');
+    const previewImg = document.querySelector('#previewImg');
+    const removeImageBtn = document.querySelector('#removeImageBtn');
+    const originalAddImgText = addImageBtn.textContent;
+    addImageBtn?.addEventListener('click', ()=>msgImageInput.click());
+    msgImageInput?.addEventListener('change', ()=>{
+        const file = msgImageInput.files[0];
+        if (file) {
+            previewImg.src = URL.createObjectURL(file);
+            addImageBtn.textContent = 'Change Photo';
+            imagePreviewDiv.classList.remove('d-none');
+        }
+    });
+    removeImageBtn?.addEventListener('click', ()=>{
+        msgImageInput.value = '';
+        previewImg.src = '';
+        addImageBtn.textContent = originalAddImgText;
+        imagePreviewDiv.classList.add('d-none');
+    });
+    sendMsgForm?.addEventListener('submit', async (e)=>{
         e.preventDefault();
-        const text = textarea.value;
-        const receiver = document.getElementById('receiver').value;
+        const formData = new FormData(sendMsgForm);
         const sendMsgBtn = document.querySelector('.btn--send-msg');
         sendMsgBtn.textContent = 'Sending....';
         sendMsgBtn.disabled = true;
         textarea.disabled = true;
-        const sendingStatus = await (0, _messageJs.sendMsg)({
-            text,
-            receiver
-        });
-        textarea.disabled = false;
-        sendMsgBtn.disabled = false;
+        addImageBtn.disabled = true;
+        if (removeImageBtn) removeImageBtn.disabled = true;
+        const sendingStatus = await (0, _messageJs.sendMsg)(formData);
         sendMsgBtn.textContent = 'Send';
+        sendMsgBtn.disabled = false;
+        textarea.disabled = false;
+        addImageBtn.disabled = false;
+        if (removeImageBtn) removeImageBtn.disabled = false;
         if (sendingStatus) {
             textarea.value = '';
+            addImageBtn.textContent = originalAddImgText;
             updateCount();
+            imagePreviewDiv.classList.add('d-none');
+            previewImg.src = '';
         }
     });
 }
@@ -1393,6 +1488,7 @@ const startCountdown = (resendBtn, countdownEl)=>{
 /*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
+parcelHelpers.export(exports, "handleOneImage", ()=>handleOneImage);
 parcelHelpers.export(exports, "deleteAccount", ()=>deleteAccount);
 var _alertsJs = require("./alerts.js");
 var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
@@ -1454,6 +1550,26 @@ const deleteAccount = async ()=>{
         return false;
     }
 };
+const handleOneImage = async (method, photo = null)=>{
+    try {
+        let formData;
+        if (photo) {
+            formData = new FormData();
+            formData.append('avatar', photo);
+        }
+        const response = await fetch(`${baseUrl}photo`, {
+            method,
+            body: method === 'PATCH' ? formData : null
+        });
+        const dataSend = await response.json();
+        if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
+        (0, _alertsJsDefault.default)('success', dataSend.message);
+        return true;
+    } catch (err) {
+        (0, _alertsJsDefault.default)('error', err.message);
+        return false;
+    }
+};
 
 },{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"dQrWs":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -1467,16 +1583,9 @@ var _alertsDefault = parcelHelpers.interopDefault(_alerts);
 const baseUrl = '/api/v1/messages/';
 const sendMsg = async (body)=>{
     try {
-        const { text, receiver } = body;
         const response = await fetch(baseUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text,
-                receiver
-            })
+            body
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');

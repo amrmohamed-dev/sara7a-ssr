@@ -6,16 +6,9 @@ const baseUrl = '/api/v1/messages/';
 
 const sendMsg = async (body) => {
   try {
-    const { text, receiver } = body;
     const response = await fetch(baseUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text,
-        receiver,
-      }),
+      body,
     });
 
     const dataSend = await response.json();

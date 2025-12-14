@@ -70,4 +70,27 @@ const deleteAccount = async () => {
   }
 };
 
-export { updateSettings, deleteAccount };
+const handleOneImage = async (method, photo = null) => {
+  try {
+    let formData;
+    if (photo) {
+      formData = new FormData();
+      formData.append('avatar', photo);
+    }
+    const response = await fetch(`${baseUrl}photo`, {
+      method,
+      body: method === 'PATCH' ? formData : null,
+    });
+    const dataSend = await response.json();
+    if (!response.ok) {
+      throw new Error(dataSend.message || 'Something went wrong');
+    }
+    showAlert('success', dataSend.message);
+    return true;
+  } catch (err) {
+    showAlert('error', err.message);
+    return false;
+  }
+};
+
+export { updateSettings, handleOneImage, deleteAccount };

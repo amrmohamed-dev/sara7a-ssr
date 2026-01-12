@@ -5,14 +5,19 @@ const MessageSchema = new mongoose.Schema(
     text: {
       type: String,
       trim: true,
-      minLength: [6, 'Text must be at least 6 characters'],
-      maxLength: [500, 'Text must not exceed 500 characters'],
+      minlength: [6, 'Text must be at least 6 characters'],
+      maxlength: [500, 'Text must not exceed 500 characters'],
       required: [true, 'Text is required.'],
     },
     image: String,
     imagePublicId: String,
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: [true, 'Receiver is required.'],
     },
   },
@@ -28,7 +33,7 @@ MessageSchema.pre('findOneAndDelete', async function (next) {
 
     await mongoose
       .model('User')
-      .updateMany({ _id: userId }, { $pull: { favouriteMsgs: msgId } });
+      .updateOne({ _id: userId }, { $pull: { favouriteMsgs: msgId } });
 
     next();
   } catch (err) {
@@ -42,7 +47,7 @@ MessageSchema.pre('deleteMany', async function (next) {
 
     await mongoose
       .model('User')
-      .updateMany({ _id: userId }, { $set: { favouriteMsgs: [] } });
+      .updateOne({ _id: userId }, { $set: { favouriteMsgs: [] } });
 
     next();
   } catch (err) {

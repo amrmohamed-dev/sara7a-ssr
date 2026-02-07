@@ -8,16 +8,25 @@ import {
 } from '../utils/cloudinary.service.js';
 
 const createMsg = catchAsync(async (req, res, next) => {
-  const { receiver } = req.body;
-  const checkUser = await User.findById(receiver);
-  if (!checkUser) {
+  const { receiver, sender } = req.body;
+  const checkReceiver =
+    await User.findById(receiver).populate('msgsCount');
+  if (!checkReceiver) {
     return next(new AppError('No user found with that ID', 404));
   }
+  if (sender) {
+    const checkSender = await User.findById(sender);
+    if (!checkSender) {
+      return next(new AppError('No user found with that ID', 404));
+    }
+  }
   const { imageUrl, imagePublicId, text } = req.body;
-  const user = await User.findById(receiver).populate('msgsCount');
-  if (!user.isVerified && user.msgsCount >= 5) {
+  if (!checkReceiver.isVerified && checkReceiver.msgsCount >= 5) {
     return next(
-      new AppError(`${user.name} cannot receive more messages`, 403),
+      new AppError(
+        `${checkReceiver.name} cannot receive more messages`,
+        403,
+      ),
     );
   }
   const msg = await Message.create({
@@ -25,6 +34,7 @@ const createMsg = catchAsync(async (req, res, next) => {
     imagePublicId,
     text,
     receiver,
+    sender,
   });
   res.status(201).json({
     status: 'success',

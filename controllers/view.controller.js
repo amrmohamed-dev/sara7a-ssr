@@ -39,14 +39,23 @@ const getMyMsgsPage = catchAsync(async (req, res, next) => {
   const { tab } = req.query;
 
   res.locals.fullUrl = `${req.protocol}://${req.host}`;
-  let msgs = await Message.find({ receiver: req.user._id }).sort({
-    createdAt: sort,
-  });
+
+  let msgs = await Message.find({ receiver: req.user._id })
+    .populate('sender', 'name username photo')
+    .sort({
+      createdAt: sort,
+    });
 
   if (tab) {
     if (tab === 'favourite') {
       msgs = [...req.user.favouriteMsgs];
     }
+
+    msgs = await Message.populate(msgs, {
+      path: 'sender',
+      select: 'name username photo',
+    });
+
     return res.status(200).render('shared/showMessages', {
       msgs,
       id: tab,

@@ -23,6 +23,69 @@
     border-radius: 10px;
     transition: all 0.2s ease;
   }
+
+  .anon-toggle-wrapper {
+    background: #f6fcfc;
+    border: 1px solid #d6f1ef;
+    border-radius: 14px;
+    padding: 14px 18px;
+  }
+
+  .anon-toggle-wrapper:hover {
+    border-color: #10bbb3;
+    background: #eefafa;
+  }
+
+  .anon-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .toggle-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    cursor: pointer;
+  }
+
+  .switch input {
+    display: none;
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 30px;
+    transition: 0.3s;
+  }
+
+  .slider::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .switch.active .slider {
+    background-color: #10bbb3;
+  }
+
+  .switch.active .slider::before {
+    transform: translateX(22px);
+  }
 </style>
 
 <div class="container text-center py-5 my-5">
@@ -63,6 +126,14 @@
           name="receiver"
           value="<%= publicUser?._id %>"
         />
+        <% if (locals.user) { %>
+          <input
+            id="sender"
+            type="hidden"
+            name="sender"
+            value="<%= user._id %>"
+          />
+        <% } %>
 
         <div class="mt-3">
           <button type="button" id="addImageBtn" class="btn btn-outline-secondary w-100">
@@ -83,8 +154,25 @@
               Remove Photo
             </button>
           </div>
-      </div>
+        </div>
+        <div class="anon-toggle-wrapper mt-4">
+          <div class="anon-toggle">
+            <span class="toggle-label">Send anonymously</span>
 
+            <div class="switch active" id="anonSwitch">
+              <input 
+                type="checkbox" 
+                id="anonymousCheckbox" 
+                name="isAnonymous" 
+                checked
+              />
+              <span class="slider"></span>
+            </div>
+          </div>
+          <small class="toggle-hint" id="anonHint">
+            Turn off to send with your name (requires login)
+          </small>
+        </div>
 
         <p class="notify text-danger <%= !publicUser.isVerified && publicUser.msgsCount >= 5 ? '' : 'd-none' %>" >
           <%= publicUser.name %> cannot receive more messages

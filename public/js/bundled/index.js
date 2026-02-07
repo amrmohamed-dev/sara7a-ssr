@@ -1020,9 +1020,22 @@ if (sendMsgForm) {
         addImageBtn.textContent = originalAddImgText;
         imagePreviewDiv.classList.add('d-none');
     });
+    document.addEventListener('DOMContentLoaded', async ()=>{
+        const switchBox = document.getElementById('anonSwitch');
+        const checkbox = document.getElementById('anonymousCheckbox');
+        const isLoggedIn = document.body.dataset.loggedIn === 'true';
+        switchBox.addEventListener('click', ()=>{
+            if (!isLoggedIn) return (0, _alertsJsDefault.default)('error', 'You need to login first');
+            checkbox.checked = !checkbox.checked;
+            switchBox.classList.toggle('active', checkbox.checked);
+        });
+    });
     sendMsgForm?.addEventListener('submit', async (e)=>{
         e.preventDefault();
+        const anonymousCheckbox = document.getElementById('anonymousCheckbox');
+        const isAnonymous = anonymousCheckbox.checked;
         const formData = new FormData(sendMsgForm);
+        if (isAnonymous) formData.delete('sender');
         const sendMsgBtn = document.querySelector('.btn--send-msg');
         sendMsgBtn.textContent = 'Sending....';
         sendMsgBtn.disabled = true;

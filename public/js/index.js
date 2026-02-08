@@ -255,8 +255,15 @@ if (userDataForm) {
     const saveDataBtn = document.querySelector('.btn--save-data');
     saveDataBtn.textContent = 'Updating....';
     const name = document.getElementById('name').value;
+    const allowMessages =
+      document.getElementById('allowMessages')?.checked ?? true;
+    const showLastSeen =
+      document.getElementById('showLastSeen')?.checked ?? true;
     saveDataBtn.disabled = true;
-    const savingStatus = await settings.updateSettings({ name }, 'data');
+    const savingStatus = await settings.updateSettings(
+      { name, allowMessages, showLastSeen },
+      'data',
+    );
     saveDataBtn.textContent = 'Save Changes';
     if (savingStatus) {
       setTimeout(() => location.reload(), 1100);

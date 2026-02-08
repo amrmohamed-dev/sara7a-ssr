@@ -902,9 +902,13 @@ if (userDataForm) userDataForm.addEventListener('submit', async (e)=>{
     const saveDataBtn = document.querySelector('.btn--save-data');
     saveDataBtn.textContent = 'Updating....';
     const name = document.getElementById('name').value;
+    const allowMessages = document.getElementById('allowMessages')?.checked ?? true;
+    const showLastSeen = document.getElementById('showLastSeen')?.checked ?? true;
     saveDataBtn.disabled = true;
     const savingStatus = await _settingsJs.updateSettings({
-        name
+        name,
+        allowMessages,
+        showLastSeen
     }, 'data');
     saveDataBtn.textContent = 'Save Changes';
     if (savingStatus) setTimeout(()=>location.reload(), 1100);
@@ -1514,14 +1518,16 @@ var _alertsJs = require("./alerts.js");
 var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
 const baseUrl = '/api/v1/users/me/';
 const updateUserData = async (body)=>{
-    const { name } = body;
+    const { name, allowMessages, showLastSeen } = body;
     const response = await fetch(baseUrl, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            name
+            name,
+            allowMessages,
+            showLastSeen
         })
     });
     return response;

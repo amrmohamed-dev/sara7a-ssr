@@ -5,13 +5,13 @@ import showAlert from './alerts.js';
 const baseUrl = '/api/v1/users/me/';
 
 const updateUserData = async (body) => {
-  const { name } = body;
+  const { name, allowMessages, showLastSeen } = body;
   const response = await fetch(baseUrl, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, allowMessages, showLastSeen }),
   });
   return response;
 };

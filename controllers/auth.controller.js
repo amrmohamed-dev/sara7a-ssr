@@ -177,6 +177,8 @@ const isAuthenticated = catchAsync(async (req, res, next) => {
       new AppError('Authentication failed. Please log in again.', 401),
     );
   }
+  user.lastSeenAt = new Date();
+  await user.save({ validateBeforeSave: false });
   req.user = user;
   res.locals.user = user || null;
   next();
@@ -200,6 +202,9 @@ const isLoggedIn = async (req, res, next) => {
       if (user.changedPasswordAfter(decoded.iat)) {
         throw Error();
       }
+
+      user.lastSeenAt = new Date();
+      await user.save({ validateBeforeSave: false });
 
       // There is a logged in user
       res.locals.user = user;

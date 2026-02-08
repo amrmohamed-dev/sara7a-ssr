@@ -52,6 +52,18 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    allowMessages: {
+      type: Boolean,
+      default: true,
+    },
+    showLastSeen: {
+      type: Boolean,
+      default: true,
+    },
+    lastSeenAt: {
+      type: Date,
+      default: Date.now,
+    },
     otp: {
       code: String,
       expires: Date,

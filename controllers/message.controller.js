@@ -29,6 +29,11 @@ const createMsg = catchAsync(async (req, res, next) => {
       ),
     );
   }
+  if (!checkReceiver.allowMessages) {
+    return next(
+      new AppError(`${checkReceiver.name} is not receiving messages`, 403),
+    );
+  }
   const msg = await Message.create({
     image: imageUrl,
     imagePublicId,

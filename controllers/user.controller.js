@@ -9,12 +9,16 @@ import {
 
 const updateMe = catchAsync(async (req, res, next) => {
   const { _id } = req.user;
-  const { name } = req.body;
-  const user = await User.findByIdAndUpdate(
-    _id,
-    { name },
-    { new: true, runValidators: true },
-  );
+  const { name, allowMessages, showLastSeen } = req.body;
+  const updates = { name };
+  if (typeof allowMessages === 'boolean')
+    updates.allowMessages = allowMessages;
+  if (typeof showLastSeen === 'boolean')
+    updates.showLastSeen = showLastSeen;
+  const user = await User.findByIdAndUpdate(_id, updates, {
+    new: true,
+    runValidators: true,
+  });
   res.status(200).json({
     status: 'success',
     data: {

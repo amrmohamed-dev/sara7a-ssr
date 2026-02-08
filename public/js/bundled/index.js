@@ -725,7 +725,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const copyBtn = document.getElementById('copyBtn');
 const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
-const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
+const verifyEmailBtn = document.querySelectorAll('.verifyEmailBtn');
 const updatePasswordForm = document.querySelector('.form--update-password');
 const userDataForm = document.querySelector('.form--user-data');
 const addPhotoBtn = document.querySelector('#addPhotoBtn');
@@ -804,7 +804,6 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
         _otpUtilsJs.handleEnterOtp(inputs);
         resendBtn.addEventListener('click', async ()=>{
             resendBtn.disabled = true;
-            resendBtn.textContent = 'Resending....';
             const sendingStatus = await _otpUtilsJs.handleOtpSending(email, purpose);
             if (sendingStatus) _otpUtilsJs.startCountdown(resendBtn, countdownEl);
             else {
@@ -868,11 +867,19 @@ if (forgotPasswordBtn) forgotPasswordBtn.addEventListener('click', async ()=>{
     const email = emailInput.value.trim();
     await sendOtpFlow(forgotPasswordBtn, email, 'Password Recovery');
 });
-if (verifyEmailBtn.length) verifyEmailBtn.forEach((btn)=>btn.addEventListener('click', async ()=>{
-        btn.disabled = true;
-        const email = btn.dataset.email.trim();
-        await sendOtpFlow(btn, email, 'Email Confirmation');
-    }));
+if (verifyEmailBtn.length) {
+    const toggleVerifyButtons = (state)=>{
+        verifyEmailBtn.forEach((btn)=>{
+            btn.disabled = state;
+        });
+    };
+    verifyEmailBtn.forEach((btn)=>btn.addEventListener('click', async ()=>{
+            toggleVerifyButtons(true);
+            const email = btn.dataset.email.trim();
+            await sendOtpFlow(btn, email, 'Email Confirmation');
+            toggleVerifyButtons(false);
+        }));
+}
 if (updatePasswordForm) updatePasswordForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const updatePasswordBtn = document.querySelector('.btn--update-password');

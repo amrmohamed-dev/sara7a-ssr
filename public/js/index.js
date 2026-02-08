@@ -16,7 +16,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const copyBtn = document.getElementById('copyBtn');
 const forgotPasswordBtn = document.querySelector('.btn-sendOtp');
-const verifyEmailBtn = document.querySelectorAll('#verifyEmailBtn');
+const verifyEmailBtn = document.querySelectorAll('.verifyEmailBtn');
 const updatePasswordForm = document.querySelector(
   '.form--update-password',
 );
@@ -113,7 +113,6 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
 
     resendBtn.addEventListener('click', async () => {
       resendBtn.disabled = true;
-      resendBtn.textContent = 'Resending....';
       const sendingStatus = await otpUtils.handleOtpSending(
         email,
         purpose,
@@ -211,11 +210,18 @@ if (forgotPasswordBtn) {
 }
 
 if (verifyEmailBtn.length) {
+  const toggleVerifyButtons = (state) => {
+    verifyEmailBtn.forEach((btn) => {
+      btn.disabled = state;
+    });
+  };
+
   verifyEmailBtn.forEach((btn) =>
     btn.addEventListener('click', async () => {
-      btn.disabled = true;
+      toggleVerifyButtons(true);
       const email = btn.dataset.email.trim();
       await sendOtpFlow(btn, email, 'Email Confirmation');
+      toggleVerifyButtons(false);
     }),
   );
 }

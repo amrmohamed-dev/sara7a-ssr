@@ -50,6 +50,7 @@
 
 .verify-status {
   font-size: 0.85rem;
+  margin-left: 2.5px;
   padding: 5px 10px;
   border-radius: 10px;
   font-weight: 500;
@@ -57,15 +58,7 @@
 }
 
 .not-verified {
-  background: #fff4f4;
-  color: #c0392b;
-  border: 1px solid #f3b7b7;
-  cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.not-verified:hover {
-  background: #f8d7da;
 }
 
 .verified {
@@ -169,7 +162,13 @@
           />
           <label class="form-label" for="email">Email</label>
           <% if (!user.isVerified) { %>
-            <span class="verify-status not-verified" id="verifyEmailBtn" data-email="<%=user.email%>">Not Verified</span>
+            <button
+              type="button"
+              class="btn btn-outline-info btn-sm verify-status verifyEmailBtn"
+              data-email="<%= user.email %>"
+            >
+              Not Verified
+            </button>
           <% } else { %>
             <span class="verify-status verified">Verified ✅</span>
           <% } %>

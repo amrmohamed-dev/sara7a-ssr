@@ -425,10 +425,13 @@ label {
   color: #00b3a4;
 }
 
-button:disabled,
-button:disabled {
-  background: #cfd3e1 !important;
+.btn:disabled,
+.btn.disabled {
+  background-color: #cfd3e1 !important;
+  border-color: #cfd3e1 !important;
+  color: #6b7280 !important;
   cursor: not-allowed !important;
+  opacity: 1 !important;
 }
 
 #addPhotoBtn,

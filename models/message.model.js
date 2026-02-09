@@ -28,12 +28,15 @@ const MessageSchema = new mongoose.Schema(
 
 MessageSchema.pre('findOneAndDelete', async function (next) {
   try {
-    const userId = this._conditions.receiver;
-    const msgId = this._conditions._id;
+    const userId = this.getQuery().receiver;
+    const msgId = this.getQuery()._id;
 
     await mongoose
       .model('User')
-      .updateOne({ _id: userId }, { $pull: { favouriteMsgs: msgId } });
+      .updateOne(
+        { _id: userId },
+        { $pull: { favouriteMsgs: { msg: msgId } } },
+      );
 
     next();
   } catch (err) {
@@ -43,7 +46,7 @@ MessageSchema.pre('findOneAndDelete', async function (next) {
 
 MessageSchema.pre('deleteMany', async function (next) {
   try {
-    const userId = this._conditions.receiver;
+    const userId = this.getQuery().receiver;
 
     await mongoose
       .model('User')

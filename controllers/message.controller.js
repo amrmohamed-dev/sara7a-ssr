@@ -61,9 +61,8 @@ const getMyMsgs = catchAsync(async (req, res, next) => {
 const deleteMyMsg = catchAsync(async (req, res, next) => {
   const { _id: receiver } = req.user;
   const { id } = req.params;
-  const msg = await Message.findOne({ _id: id, receiver });
+  const msg = await Message.findOneAndDelete({ _id: id, receiver });
   if (msg.imagePublicId) await deleteOneImage(msg.imagePublicId);
-  await msg.deleteOne();
   res.status(204).send();
 });
 

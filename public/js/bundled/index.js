@@ -1043,18 +1043,21 @@ if (sendMsgForm) {
     });
     sendMsgForm?.addEventListener('submit', async (e)=>{
         e.preventDefault();
+        const switchBox = document.getElementById('anonSwitch');
         const anonymousCheckbox = document.getElementById('anonymousCheckbox');
         const isAnonymous = anonymousCheckbox.checked;
         const formData = new FormData(sendMsgForm);
         if (isAnonymous) formData.delete('sender');
         const sendMsgBtn = document.querySelector('.btn--send-msg');
         sendMsgBtn.textContent = 'Sending....';
+        switchBox.classList.add('disabled-switch');
         sendMsgBtn.disabled = true;
         textarea.disabled = true;
         addImageBtn.disabled = true;
         if (removeImageBtn) removeImageBtn.disabled = true;
         const sendingStatus = await (0, _messageJs.sendMsg)(formData);
         sendMsgBtn.textContent = 'Send';
+        switchBox.classList.remove('disabled-switch');
         sendMsgBtn.disabled = false;
         textarea.disabled = false;
         addImageBtn.disabled = false;
@@ -1064,6 +1067,7 @@ if (sendMsgForm) {
             addImageBtn.textContent = originalAddImgText;
             updateCount();
             imagePreviewDiv.classList.add('d-none');
+            msgImageInput.value = '';
             previewImg.src = '';
         }
     });

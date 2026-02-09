@@ -59,7 +59,7 @@
             <button type="submit" 
               class="btn btn-outline-warning btn-sm"
               title="Add to Favourite">
-              <i class="fas fa-star" style="color: <%= user.favouriteMsgs.some((id)=>id.equals(msg._id)) ? '#f1c40f' : '#b8b8b8' %>"></i>
+              <i class="fas fa-star" style="color: <%= favSet?.has(msg.id) ? '#f1c40f' : '#b8b8b8' %>"></i>
             </button>
           </form>
 

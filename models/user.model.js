@@ -43,11 +43,18 @@ const userSchema = new mongoose.Schema(
       default: '/img/users/static/avatar.png',
     },
     photoPublicId: String,
-    favouriteMsgs: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Message',
-      default: [],
-    },
+    favouriteMsgs: [
+      {
+        msg: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Message',
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     visitsCount: {
       type: Number,
       default: 0,
@@ -127,7 +134,7 @@ userSchema.pre('findOneAndDelete', async function (next) {
 });
 
 userSchema.pre(/^find/, function (next) {
-  this.find({ isActive: { $ne: false } }).populate('favouriteMsgs');
+  this.find({ isActive: { $ne: false } });
   next();
 });
 

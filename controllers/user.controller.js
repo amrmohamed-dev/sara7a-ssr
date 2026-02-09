@@ -69,21 +69,30 @@ const toggleFavourite = catchAsync(async (req, res, next) => {
   const { user } = req;
   const { id: msgId } = req.params;
 
-  const alreadyFav = user.favouriteMsgs.some((id) => id.equals(msgId));
-  let message;
-  if (alreadyFav) {
-    message = 'Message removed from favourites';
-    user.favouriteMsgs = user.favouriteMsgs.filter(
-      (id) => !id.equals(msgId),
-    );
+  const msg = await Message.findOne({
+    _id: msgId,
+    receiver: user._id,
+  });
+
+  if (!msg) {
+    return next(new AppError('Message not found or access denied', 404));
+  }
+
+  const favIndex = user.favouriteMsgs.findIndex((fav) =>
+    fav.msg.equals(msgId),
+  );
+  let action;
+  if (favIndex !== -1) {
+    action = 'removed from';
+    user.favouriteMsgs.splice(favIndex, 1);
   } else {
-    message = 'Message added to favourites';
-    user.favouriteMsgs.unshift(msgId);
+    action = 'added to';
+    user.favouriteMsgs.push({ msg: msgId });
   }
   await user.save({ validateModifiedOnly: true });
   res.status(200).json({
     status: 'success',
-    message,
+    message: `Message ${action} favourites`,
   });
 });
 

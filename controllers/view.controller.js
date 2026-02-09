@@ -40,33 +40,52 @@ const getMyMsgsPage = catchAsync(async (req, res, next) => {
 
   res.locals.fullUrl = `${req.protocol}://${req.host}`;
 
-  let msgs = await Message.find({ receiver: req.user._id })
-    .populate('sender', 'name username photo')
-    .sort({
-      createdAt: sort,
-    });
-
-  if (tab) {
-    if (tab === 'favourite') {
-      msgs = [...req.user.favouriteMsgs];
-    }
-
-    msgs = await Message.populate(msgs, {
+  const user = await User.findById(req.user._id).populate({
+    path: 'favouriteMsgs.msg',
+    populate: {
       path: 'sender',
       select: 'name username photo',
-    });
+    },
+  });
+
+  const favSet = new Set(
+    user.favouriteMsgs
+      .map((fav) => fav.msg?.id)
+      .filter(Boolean)
+      .map(String),
+  );
+
+  const getUserMsgs = () =>
+    Message.find({ receiver: user._id })
+      .populate('sender', 'name username photo')
+      .sort({ createdAt: sort });
+
+  let msgs;
+  if (tab) {
+    if (tab === 'favourite') {
+      msgs = user.favouriteMsgs
+        .sort((a, b) => b.addedAt - a.addedAt)
+        .map((fav) => fav.msg)
+        .filter(Boolean);
+    } else {
+      msgs = await getUserMsgs();
+    }
 
     return res.status(200).render('shared/showMessages', {
       msgs,
+      favSet,
       id: tab,
       timeSince,
       layout: false,
     });
   }
 
+  msgs = await getUserMsgs();
+
   res.status(200).render('messages', {
     title: 'My messages',
     msgs,
+    favSet,
     sort: req.query.sort || 'newest',
   });
 });

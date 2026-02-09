@@ -1,6 +1,6 @@
 import cloudinary from '../config/cloudinary.js';
-import catchAsync from './error/catchAsync.js';
-import AppError from './error/appError.js';
+import catchAsync from '../utils/error/catchAsync.js';
+import AppError from '../utils/error/appError.js';
 
 const uploadImage = (folder) =>
   catchAsync(async (req, res, next) => {

@@ -5,7 +5,7 @@ import catchAsync from '../utils/error/catchAsync.js';
 import {
   deleteOneImage,
   deleteUserImages,
-} from '../utils/cloudinary.service.js';
+} from '../services/cloudinary.service.js';
 
 const updateMe = catchAsync(async (req, res, next) => {
   const { _id } = req.user;

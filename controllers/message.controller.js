@@ -5,7 +5,7 @@ import catchAsync from '../utils/error/catchAsync.js';
 import {
   deleteOneImage,
   deleteUserImages,
-} from '../utils/cloudinary.service.js';
+} from '../services/cloudinary.service.js';
 
 const createMsg = catchAsync(async (req, res, next) => {
   const { receiver, sender } = req.body;

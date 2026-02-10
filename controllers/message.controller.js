@@ -51,12 +51,61 @@ const createMsg = catchAsync(async (req, res, next) => {
 
 const getMyMsgs = catchAsync(async (req, res, next) => {
   const { _id: receiver } = req.user;
-  const msgs = await Message.find({ receiver });
+  const msgs = await Message.find({ receiver }).populate(
+    'sender',
+    'name username photo',
+  );
   res.status(200).json({
     status: 'success',
     msgs,
   });
 });
+
+const toggleFavourite = catchAsync(async (req, res, next) => {
+  const { user } = req;
+  const { id: msgId } = req.params;
+
+  const msg = await Message.findOne({
+    _id: msgId,
+    receiver: user._id,
+  });
+
+  if (!msg) {
+    return next(new AppError('Message not found or access denied', 404));
+  }
+
+  const favIndex = user.favouriteMsgs.findIndex((fav) =>
+    fav.msg.equals(msgId),
+  );
+  let action;
+  if (favIndex !== -1) {
+    action = 'removed from';
+    user.favouriteMsgs.splice(favIndex, 1);
+  } else {
+    action = 'added to';
+    user.favouriteMsgs.push({ msg: msgId });
+  }
+  await user.save({ validateModifiedOnly: true });
+  res.status(200).json({
+    status: 'success',
+    message: `Message ${action} favourites`,
+  });
+});
+
+const getMyFavouriteMsgs = async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate({
+    path: 'favouriteMsgs.msg',
+    populate: {
+      path: 'sender',
+      select: 'username photo',
+    },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    msgs: user.favouriteMsgs,
+  });
+};
 
 const deleteMyMsg = catchAsync(async (req, res, next) => {
   const { _id: receiver } = req.user;
@@ -77,4 +126,11 @@ const deleteMyMsgs = catchAsync(async (req, res, next) => {
   res.status(204).send();
 });
 
-export { getMyMsgs, createMsg, deleteMyMsg, deleteMyMsgs };
+export {
+  getMyMsgs,
+  createMsg,
+  toggleFavourite,
+  getMyFavouriteMsgs,
+  deleteMyMsg,
+  deleteMyMsgs,
+};

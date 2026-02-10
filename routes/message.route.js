@@ -23,6 +23,9 @@ msgRouter
   .get(msgController.getMyMsgs)
   .delete(msgController.deleteMyMsgs);
 
+msgRouter.get('/favourites', msgController.getMyFavouriteMsgs);
+msgRouter.patch('/favourite/:id', msgController.toggleFavourite);
+
 msgRouter.route('/:id').delete(msgController.deleteMyMsg);
 
 export default msgRouter;

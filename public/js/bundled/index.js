@@ -1629,7 +1629,7 @@ const sendMsg = async (body)=>{
 const toggleFavourite = async (body)=>{
     try {
         const { msgId } = body;
-        const response = await fetch(`/api/v1/users/messages/favourite/${msgId}`, {
+        const response = await fetch(`/api/v1/messages/favourite/${msgId}`, {
             method: 'PATCH'
         });
         const dataSend = await response.json();

@@ -12,11 +12,6 @@ const userRouter = express.Router();
 userRouter.use(authController.isAuthenticated);
 
 userRouter.patch(
-  '/messages/favourite/:id',
-  userController.toggleFavourite,
-);
-
-userRouter.patch(
   '/me/update-password',
   checkVerified,
   validation(updatePasswordSchema),

@@ -1,0 +1,1270 @@
+# NOTE:
+# Authentication is handled via httpOnly cookies.
+# When testing protected endpoints in Swagger UI:
+# 1. Call /auth/login first
+# 2. Cookie will be set automatically by the browser
+
+openapi: 3.0.3
+info:
+  title: Sara7a API
+  version: 1.0.0
+  description: |-
+    REST API for Sara7a (anonymous messaging app) using Express, MongoDB, and JWT authentication via httpOnly cookies.
+    API routes are mounted under `/api/v1`.
+
+    Sensitive endpoints are protected by IP-based rate limiting.
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://sara7a-ssr.vercel.app
+    description: Production server
+
+tags:
+  - name: Auth
+    description: Authentication, OTP, and session endpoints
+  - name: Messages
+    description: Message creation and inbox management
+  - name: Users
+    description: User profile, password, and favourites management
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: john_doe
+              name: John Doe
+              email: john@example.com
+              password: Pass1234
+              passwordConfirm: Pass1234
+      responses:
+        '201':
+          description: Account created and JWT cookie set
+          headers:
+            Set-Cookie:
+              description: httpOnly JWT cookie named `jwt`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                status: success
+                message: Your account created successfully!
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 0
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T09:45:10.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/send-otp/{purpose}:
+    post:
+      tags: [Auth]
+      summary: Send OTP for email confirmation or password recovery
+      operationId: sendOtp
+      description: >
+        `purpose` must be either `Email Confirmation` or `Password Recovery`.
+        If purpose is `Email Confirmation`, authentication cookie is required.
+      parameters:
+        - $ref: '#/components/parameters/PurposeParam'
+      security:
+        - cookieAuth: []
+        - {}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendOtpRequest'
+            examples:
+              passwordRecovery:
+                summary: Password recovery flow
+                value:
+                  email: john@example.com
+              emailConfirmation:
+                summary: Email confirmation flow (authenticated user)
+                value: {}
+      responses:
+        '200':
+          description: OTP handled successfully
+          headers:
+            Set-Cookie:
+              description: >
+                Returned when purpose is `Email Confirmation` (token re-issued).
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AuthResponse'
+                  - $ref: '#/components/schemas/SuccessMessageResponse'
+              examples:
+                emailConfirmation:
+                  summary: Email Confirmation response
+                  value:
+                    status: success
+                    message: If an OTP was sent, please check your email.
+                    data:
+                      user:
+                        _id: 65f1c9f8dfe4f21cc1a2b3c4
+                        username: john_doe
+                        name: John Doe
+                        email: john@example.com
+                        role: user
+                        photo: /img/users/static/avatar.png
+                        photoPublicId: null
+                        favouriteMsgs: []
+                        visitsCount: 0
+                        allowMessages: true
+                        showLastSeen: true
+                        lastSeenAt: '2026-02-09T09:45:10.000Z'
+                        createdAt: '2026-02-09T09:45:10.000Z'
+                        msgsCount: 0
+                passwordRecovery:
+                  summary: Password Recovery response
+                  value:
+                    status: success
+                    message: If an OTP was sent, please check your email.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/verify-email:
+    patch:
+      tags: [Auth]
+      summary: Verify authenticated user's email using OTP
+      operationId: verifyEmail
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+            example:
+              otp: '123456'
+      responses:
+        '200':
+          description: Email verified and JWT cookie refreshed
+          headers:
+            Set-Cookie:
+              description: httpOnly JWT cookie named `jwt`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                status: success
+                message: Email confirmed successfully!
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 0
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T10:12:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: john@example.com
+              password: Pass1234
+      responses:
+        '200':
+          description: Logged in and JWT cookie set
+          headers:
+            Set-Cookie:
+              description: httpOnly JWT cookie named `jwt`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                status: success
+                message: Logged in successfully!
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T10:20:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/verify-otp/{purpose}:
+    post:
+      tags: [Auth]
+      summary: Verify OTP code
+      operationId: verifyOtp
+      parameters:
+        - $ref: '#/components/parameters/PurposeParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpRequest'
+            example:
+              email: john@example.com
+              otp: '123456'
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageResponse'
+              example:
+                status: success
+                message: OTP verified successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/reset-password:
+    patch:
+      tags: [Auth]
+      summary: Reset password using verified OTP
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+            example:
+              email: john@example.com
+              otp: '123456'
+              password: NewPass123
+              passwordConfirm: NewPass123
+      responses:
+        '200':
+          description: Password reset and JWT cookie set
+          headers:
+            Set-Cookie:
+              description: httpOnly JWT cookie named `jwt`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                status: success
+                message: Password reset successfully
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T10:30:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/logout:
+    get:
+      tags: [Auth]
+      summary: Logout current session
+      operationId: logoutUser
+      responses:
+        '200':
+          description: JWT cookie cleared
+          headers:
+            Set-Cookie:
+              description: Clears `jwt` cookie on client
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessStatusResponse'
+              example:
+                status: success
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/messages:
+    post:
+      tags: [Messages]
+      summary: Send a message (public)
+      operationId: createMessage
+      description: >
+        Public endpoint. Supports anonymous messaging (omit `sender`) and optional image upload using `msgImage`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageJsonRequest'
+            example:
+              receiver: 65f1c9f8dfe4f21cc1a2b3c4
+              text: Hello, I appreciate your work!
+              sender: 65f1cae2dfe4f21cc1a2b3c5
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateMessageMultipartRequest'
+            example:
+              receiver: 65f1c9f8dfe4f21cc1a2b3c4
+              text: Anonymous message with image
+              msgImage: image-file.jpg
+      responses:
+        '201':
+          description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCreateResponse'
+              example:
+                status: success
+                data:
+                  msg:
+                    _id: 65f2038ddfe4f21cc1a2b4f0
+                    text: Hello, I appreciate your work!
+                    image: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/msgs/sample.jpg
+                    imagePublicId: sara7a-ssr/msgs/sample
+                    sender: 65f1cae2dfe4f21cc1a2b3c5
+                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                    createdAt: '2026-02-09T11:05:00.000Z'
+                    updatedAt: '2026-02-09T11:05:00.000Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags: [Messages]
+      summary: Get current user's received messages
+      operationId: getMyMessages
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Messages fetched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesListResponse'
+              example:
+                status: success
+                msgs:
+                  - _id: 65f2038ddfe4f21cc1a2b4f0
+                    text: Hello, I appreciate your work!
+                    image: null
+                    imagePublicId: null
+                    sender: null
+                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                    createdAt: '2026-02-09T11:05:00.000Z'
+                    updatedAt: '2026-02-09T11:05:00.000Z'
+                  - _id: 65f20412dfe4f21cc1a2b4f1
+                    text: Keep going, your content is awesome.
+                    image: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/msgs/pic.jpg
+                    imagePublicId: sara7a-ssr/msgs/pic
+                    sender: 65f1cae2dfe4f21cc1a2b3c5
+                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                    createdAt: '2026-02-09T11:08:00.000Z'
+                    updatedAt: '2026-02-09T11:08:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Messages]
+      summary: Delete all current user's received messages
+      operationId: deleteMyMessages
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/messages/favourites:
+    get:
+      tags: [Messages]
+      summary: Get current user's favourite messages
+      operationId: getMyFavouriteMessages
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Favourite messages fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesListResponse'
+              example:
+                status: success
+                msgs:
+                  - _id: 65f2038ddfe4f21cc1a2b4f0
+                    text: Hello, I appreciate your work!
+                    image: null
+                    imagePublicId: null
+                    sender: null
+                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                    createdAt: '2026-02-09T11:05:00.000Z'
+                    updatedAt: '2026-02-09T11:05:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/messages/favourite/{id}:
+    patch:
+      tags: [Messages]
+      summary: Toggle favourite status for a received message
+      operationId: toggleFavouriteMessage
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MessageIdParam'
+      responses:
+        '200':
+          description: Favourite status toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageResponse'
+              examples:
+                added:
+                  summary: Added to favourites
+                  value:
+                    status: success
+                    message: Message added to favourites
+                removed:
+                  summary: Removed from favourites
+                  value:
+                    status: success
+                    message: Message removed from favourites
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/messages/{id}:
+    delete:
+      tags: [Messages]
+      summary: Delete one message from current user's inbox
+      operationId: deleteMyMessage
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MessageIdParam'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/update-password:
+    patch:
+      tags: [Users]
+      summary: Update current user's password
+      operationId: updateMyPassword
+      security:
+        - cookieAuth: []
+      description: Requires authenticated and verified user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+            example:
+              currentPassword: Pass1234
+              password: NewPass123
+              passwordConfirm: NewPass123
+      responses:
+        '200':
+          description: Password updated and JWT cookie refreshed
+          headers:
+            Set-Cookie:
+              description: httpOnly JWT cookie named `jwt`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                status: success
+                message: Password updated successfully
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T11:22:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me:
+    patch:
+      tags: [Users]
+      summary: Update current user's profile settings
+      operationId: updateMe
+      security:
+        - cookieAuth: []
+      description: Requires authenticated and verified user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeRequest'
+            example:
+              name: John Updated
+              allowMessages: true
+              showLastSeen: false
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              example:
+                status: success
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Updated
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: false
+                    lastSeenAt: '2026-02-09T11:24:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Users]
+      summary: Delete current user's account
+      operationId: deleteMe
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/photo:
+    patch:
+      tags: [Users]
+      summary: Upload/update current user's profile photo
+      operationId: updateProfilePhoto
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadPhotoRequest'
+      responses:
+        '200':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              example:
+                status: success
+                message: Your photo uploaded successfully
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/users/avatar.jpg
+                    photoPublicId: sara7a-ssr/users/avatar
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T11:30:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Users]
+      summary: Delete current user's profile photo
+      operationId: deleteProfilePhoto
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Photo deleted and reset to default avatar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              example:
+                status: success
+                message: Your photo deleted successfully
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: sara7a-ssr/users/avatar
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T11:34:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: jwt
+      description: JWT session token stored in an httpOnly cookie named `jwt`.
+
+  parameters:
+    PurposeParam:
+      name: purpose
+      in: path
+      required: true
+      description: >
+        OTP purpose value. Use URL-encoded value in clients:
+        `Email%20Confirmation` or `Password%20Recovery`.
+      schema:
+        type: string
+        enum:
+          - Email Confirmation
+          - Password Recovery
+      example: Password Recovery
+    MessageIdParam:
+      name: id
+      in: path
+      required: true
+      description: Message ID
+      schema:
+        $ref: '#/components/schemas/ObjectId'
+      example: 65f2038ddfe4f21cc1a2b4f0
+
+  responses:
+    NoContent:
+      description: Request succeeded with no response body.
+    BadRequest:
+      description: Bad request / validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: Validation failed.
+    Unauthorized:
+      description: Authentication required or invalid/expired JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: Authentication required. Please log in.
+    Forbidden:
+      description: Authenticated but not allowed to perform action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: You do not have permission to perform this action.
+    NotFound:
+      description: Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: No user found with that ID
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: An account with this email already exists. Please login instead.
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            message: Please try again later.
+
+  schemas:
+    ObjectId:
+      type: string
+      pattern: '^[0-9a-fA-F]{24}$'
+      example: 65f1c9f8dfe4f21cc1a2b3c4
+
+    FavouriteMsg:
+      type: object
+      properties:
+        msg:
+          $ref: '#/components/schemas/ObjectId'
+        addedAt:
+          type: string
+          format: date-time
+          example: '2026-02-09T11:00:00.000Z'
+
+    User:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        username:
+          type: string
+          minLength: 3
+          maxLength: 25
+          example: john_doe
+        name:
+          type: string
+          minLength: 3
+          maxLength: 35
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        role:
+          type: string
+          enum: [user, admin]
+          example: user
+        photo:
+          type: string
+          example: /img/users/static/avatar.png
+        photoPublicId:
+          type: string
+          nullable: true
+          example: sara7a-ssr/users/avatar
+        favouriteMsgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FavouriteMsg'
+        visitsCount:
+          type: integer
+          minimum: 0
+          example: 4
+        allowMessages:
+          type: boolean
+          example: true
+        showLastSeen:
+          type: boolean
+          example: true
+        lastSeenAt:
+          type: string
+          format: date-time
+          example: '2026-02-09T11:24:00.000Z'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-02-09T09:45:10.000Z'
+        msgsCount:
+          type: integer
+          minimum: 0
+          example: 2
+
+    Message:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        text:
+          type: string
+          minLength: 6
+          maxLength: 500
+          example: Hello, I appreciate your work!
+        image:
+          type: string
+          format: uri
+          nullable: true
+          example: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/msgs/sample.jpg
+        imagePublicId:
+          type: string
+          nullable: true
+          example: sara7a-ssr/msgs/sample
+        sender:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+          nullable: true
+          example: 65f1cae2dfe4f21cc1a2b3c5
+        receiver:
+          $ref: '#/components/schemas/ObjectId'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-02-09T11:05:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-02-09T11:05:00.000Z'
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - name
+        - email
+        - password
+        - passwordConfirm
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 25
+        name:
+          type: string
+          minLength: 3
+          maxLength: 35
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          pattern: '^[a-zA-Z0-9]{8,30}$'
+          minLength: 8
+          maxLength: 30
+        passwordConfirm:
+          type: string
+          description: Must match `password`
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          pattern: '^[a-zA-Z0-9]{8,30}$'
+          minLength: 8
+          maxLength: 30
+
+    SendOtpRequest:
+      type: object
+      description: >
+        `email` is required for `Password Recovery`.
+        For `Email Confirmation`, the authenticated user's email is used.
+      properties:
+        email:
+          type: string
+          format: email
+
+    VerifyEmailRequest:
+      type: object
+      required:
+        - otp
+      properties:
+        otp:
+          type: string
+          pattern: '^\d{6}$'
+          example: '123456'
+
+    VerifyOtpRequest:
+      type: object
+      required:
+        - email
+        - otp
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          pattern: '^\d{6}$'
+          example: '123456'
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - email
+        - otp
+        - password
+        - passwordConfirm
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          pattern: '^\d{6}$'
+        password:
+          type: string
+          pattern: '^[a-zA-Z0-9]{8,30}$'
+          minLength: 8
+          maxLength: 30
+        passwordConfirm:
+          type: string
+          description: Must match `password`
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - password
+        - passwordConfirm
+      properties:
+        currentPassword:
+          type: string
+          pattern: '^[a-zA-Z0-9]{8,30}$'
+          minLength: 8
+          maxLength: 30
+        password:
+          type: string
+          pattern: '^[a-zA-Z0-9]{8,30}$'
+          minLength: 8
+          maxLength: 30
+        passwordConfirm:
+          type: string
+          description: Must match `password`
+
+    CreateMessageJsonRequest:
+      type: object
+      required:
+        - receiver
+        - text
+      properties:
+        receiver:
+          $ref: '#/components/schemas/ObjectId'
+        sender:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+          nullable: true
+          description: Optional sender user ID. Omit for anonymous message.
+        text:
+          type: string
+          minLength: 6
+          maxLength: 500
+
+    CreateMessageMultipartRequest:
+      type: object
+      required:
+        - receiver
+        - text
+      properties:
+        receiver:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        sender:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+          nullable: true
+          description: Optional sender user ID. Omit for anonymous message.
+        text:
+          type: string
+          minLength: 6
+          maxLength: 500
+        msgImage:
+          type: string
+          format: binary
+          description: Optional image file
+
+    UpdateMeRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 35
+        allowMessages:
+          type: boolean
+        showLastSeen:
+          type: boolean
+
+    UploadPhotoRequest:
+      type: object
+      required:
+        - avatar
+      properties:
+        avatar:
+          type: string
+          format: binary
+          description: Image file for profile photo
+
+    AuthResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Logged in successfully!
+        data:
+          type: object
+          required:
+            - user
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+
+    UserResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          nullable: true
+          example: Your photo uploaded successfully
+        data:
+          type: object
+          required:
+            - user
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+
+    MessageCreateResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - msg
+          properties:
+            msg:
+              $ref: '#/components/schemas/Message'
+
+    MessagesListResponse:
+      type: object
+      required:
+        - status
+        - msgs
+      properties:
+        status:
+          type: string
+          example: success
+        msgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+
+    SuccessMessageResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: OTP verified successfully
+
+    SuccessStatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: success
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [fail, error]
+          example: fail
+        message:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+          example: Authentication required. Please log in.
+        error:
+          type: object
+          nullable: true
+          additionalProperties: true
+        stack:
+          type: string
+          nullable: true

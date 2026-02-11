@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import queryString from 'qs';
 import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import xssClean from './middlewares/xssClean.js';
 import mongoSanitize from './middlewares/mongoSanitize.js';
 import viewRouter from './routes/view.route.js';
@@ -70,6 +72,20 @@ app.set('query parser', (query) => queryString.parse(query));
 
 app.use(mongoSanitize);
 app.use(xssClean);
+
+const swaggerDocument = YAML.load(
+  path.join(process.cwd(), 'docs', 'swagger.yaml'),
+);
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    swaggerOptions: {
+      withCredentials: true,
+    },
+  }),
+);
 
 app.use('/', viewRouter);
 app.use('/api/v1/auth', authRouter);

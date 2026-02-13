@@ -33,11 +33,7 @@ app.disable('x-powered-by');
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: [
-        "'self'",
-        'https://cdn.jsdelivr.net',
-        'https://lottie.host',
-      ],
+      defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
         'https://cdn.jsdelivr.net',
@@ -56,7 +52,11 @@ app.use(
       ],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
-      connectSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+      connectSrc: [
+        "'self'",
+        'https://cdn.jsdelivr.net',
+        'https://lottie.host',
+      ],
     },
   }),
 );

@@ -57,7 +57,9 @@ const getMyMsgs = catchAsync(async (req, res, next) => {
   );
   res.status(200).json({
     status: 'success',
-    msgs,
+    data: {
+      msgs,
+    },
   });
 });
 
@@ -103,7 +105,9 @@ const getMyFavouriteMsgs = async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    msgs: user.favouriteMsgs,
+    data: {
+      msgs: user.favouriteMsgs,
+    },
   });
 };
 

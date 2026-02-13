@@ -7,6 +7,15 @@ import {
   deleteUserImages,
 } from '../services/cloudinary.service.js';
 
+const getMe = (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user,
+    },
+  });
+};
+
 const updateMe = catchAsync(async (req, res, next) => {
   const { _id } = req.user;
   const { name, allowMessages, showLastSeen } = req.body;
@@ -76,4 +85,10 @@ const deleteMe = catchAsync(async (req, res, next) => {
   res.status(204).send();
 });
 
-export { updateMe, updateProfilePhoto, deleteProfilePhoto, deleteMe };
+export {
+  getMe,
+  updateMe,
+  updateProfilePhoto,
+  deleteProfilePhoto,
+  deleteMe,
+};

@@ -20,6 +20,7 @@ userRouter.patch(
 
 userRouter
   .route('/me')
+  .get(userController.getMe)
   .patch(checkVerified, userController.updateMe)
   .delete(userController.deleteMe);
 

@@ -13,6 +13,9 @@ info:
     API routes are mounted under `/api/v1`.
 
     Sensitive endpoints are protected by IP-based rate limiting.
+externalDocs:
+  description: GitHub Repository
+  url: https://github.com/amrmohamed-dev/sara7a-ssr
 
 servers:
   - url: http://localhost:3000
@@ -435,23 +438,28 @@ paths:
                 $ref: '#/components/schemas/MessagesListResponse'
               example:
                 status: success
-                msgs:
-                  - _id: 65f2038ddfe4f21cc1a2b4f0
-                    text: Hello, I appreciate your work!
-                    image: null
-                    imagePublicId: null
-                    sender: null
-                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
-                    createdAt: '2026-02-09T11:05:00.000Z'
-                    updatedAt: '2026-02-09T11:05:00.000Z'
-                  - _id: 65f20412dfe4f21cc1a2b4f1
-                    text: Keep going, your content is awesome.
-                    image: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/msgs/pic.jpg
-                    imagePublicId: sara7a-ssr/msgs/pic
-                    sender: 65f1cae2dfe4f21cc1a2b3c5
-                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
-                    createdAt: '2026-02-09T11:08:00.000Z'
-                    updatedAt: '2026-02-09T11:08:00.000Z'
+                data:
+                  msgs:
+                    - _id: 65f2038ddfe4f21cc1a2b4f0
+                      text: Hello, I appreciate your work!
+                      image: null
+                      imagePublicId: null
+                      sender: null
+                      receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                      createdAt: '2026-02-09T11:05:00.000Z'
+                      updatedAt: '2026-02-09T11:05:00.000Z'
+                    - _id: 65f20412dfe4f21cc1a2b4f1
+                      text: Keep going, your content is awesome.
+                      image: https://res.cloudinary.com/demo/image/upload/v1/sara7a-ssr/msgs/pic.jpg
+                      imagePublicId: sara7a-ssr/msgs/pic
+                      sender:
+                        _id: 65f1cae2dfe4f21cc1a2b3c5
+                        name: Jane Doe
+                        username: jane_doe
+                        photo: /img/users/static/avatar.png
+                      receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                      createdAt: '2026-02-09T11:08:00.000Z'
+                      updatedAt: '2026-02-09T11:08:00.000Z'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -488,18 +496,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessagesListResponse'
+                $ref: '#/components/schemas/FavouriteMessagesListResponse'
               example:
                 status: success
-                msgs:
-                  - _id: 65f2038ddfe4f21cc1a2b4f0
-                    text: Hello, I appreciate your work!
-                    image: null
-                    imagePublicId: null
-                    sender: null
-                    receiver: 65f1c9f8dfe4f21cc1a2b3c4
-                    createdAt: '2026-02-09T11:05:00.000Z'
-                    updatedAt: '2026-02-09T11:05:00.000Z'
+                data:
+                  msgs:
+                    - _id: 65f21212dfe4f21cc1a2b590
+                      msg:
+                        _id: 65f2038ddfe4f21cc1a2b4f0
+                        text: Hello, I appreciate your work!
+                        image: null
+                        imagePublicId: null
+                        sender:
+                          _id: 65f1cae2dfe4f21cc1a2b3c5
+                          username: jane_doe
+                          photo: /img/users/static/avatar.png
+                        receiver: 65f1c9f8dfe4f21cc1a2b3c4
+                        createdAt: '2026-02-09T11:05:00.000Z'
+                        updatedAt: '2026-02-09T11:05:00.000Z'
+                      addedAt: '2026-02-09T11:10:00.000Z'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -538,6 +553,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -617,10 +634,48 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/AccountNotVerified'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
   /api/v1/users/me:
+    get:
+      tags: [Users]
+      summary: Get current authenticated user's profile
+      operationId: getMe
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User profile fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              example:
+                status: success
+                data:
+                  user:
+                    _id: 65f1c9f8dfe4f21cc1a2b3c4
+                    username: john_doe
+                    name: John Doe
+                    email: john@example.com
+                    role: user
+                    photo: /img/users/static/avatar.png
+                    photoPublicId: null
+                    favouriteMsgs: []
+                    visitsCount: 4
+                    allowMessages: true
+                    showLastSeen: true
+                    lastSeenAt: '2026-02-09T11:24:00.000Z'
+                    createdAt: '2026-02-09T09:45:10.000Z'
+                    msgsCount: 2
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
     patch:
       tags: [Users]
       summary: Update current user's profile settings
@@ -667,6 +722,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/AccountNotVerified'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -830,6 +887,15 @@ components:
           example:
             status: fail
             message: You do not have permission to perform this action.
+    AccountNotVerified:
+      description: Account is not verified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: fail
+            message: You need to verify your account first
     NotFound:
       description: Requested resource does not exist
       content:
@@ -867,8 +933,13 @@ components:
     FavouriteMsg:
       type: object
       properties:
-        msg:
+        _id:
           $ref: '#/components/schemas/ObjectId'
+        msg:
+          oneOf:
+            - $ref: '#/components/schemas/ObjectId'
+            - $ref: '#/components/schemas/Message'
+          nullable: true
         addedAt:
           type: string
           format: date-time
@@ -951,10 +1022,10 @@ components:
           nullable: true
           example: sara7a-ssr/msgs/sample
         sender:
-          type: string
-          pattern: '^[0-9a-fA-F]{24}$'
+          oneOf:
+            - $ref: '#/components/schemas/ObjectId'
+            - $ref: '#/components/schemas/MessageSender'
           nullable: true
-          example: 65f1cae2dfe4f21cc1a2b3c5
         receiver:
           $ref: '#/components/schemas/ObjectId'
         createdAt:
@@ -966,6 +1037,20 @@ components:
           format: date-time
           example: '2026-02-09T11:05:00.000Z'
 
+    MessageSender:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+          example: Jane Doe
+        username:
+          type: string
+          example: jane_doe
+        photo:
+          type: string
+          example: /img/users/static/avatar.png
     RegisterRequest:
       type: object
       required:
@@ -1215,15 +1300,39 @@ components:
       type: object
       required:
         - status
-        - msgs
+        - data
       properties:
         status:
           type: string
           example: success
-        msgs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
+        data:
+          type: object
+          required:
+            - msgs
+          properties:
+            msgs:
+              type: array
+              items:
+                $ref: '#/components/schemas/Message'
+
+    FavouriteMessagesListResponse:
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          required:
+            - msgs
+          properties:
+            msgs:
+              type: array
+              items:
+                $ref: '#/components/schemas/FavouriteMsg'
 
     SuccessMessageResponse:
       type: object
@@ -1249,6 +1358,9 @@ components:
 
     ErrorResponse:
       type: object
+      required:
+        - status
+        - message
       properties:
         status:
           type: string
@@ -1261,10 +1373,15 @@ components:
               items:
                 type: string
           example: Authentication required. Please log in.
-        error:
+        data:
           type: object
           nullable: true
-          additionalProperties: true
-        stack:
-          type: string
-          nullable: true
+          properties:
+            error:
+              type: object
+              nullable: true
+              additionalProperties: true
+            stack:
+              type: string
+              nullable: true
+

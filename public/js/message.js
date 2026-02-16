@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import showAlert from './alerts';
+import showToast from './toast.js';
 
 const baseUrl = '/api/v1/messages/';
 
@@ -16,10 +16,10 @@ const sendMsg = async (body) => {
       throw new Error(dataSend.message || 'Something went wrong');
     }
 
-    showAlert('success', 'Your message sent successfully');
+    showToast('success', 'Your message sent successfully');
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -35,10 +35,10 @@ const toggleFavourite = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message || 'Something went wrong');
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -56,7 +56,7 @@ const deleteOneMsg = async (body) => {
     }
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -71,10 +71,10 @@ const deleteAllMsgs = async () => {
       const errData = await response.json();
       throw new Error(errData.message || 'Something went wrong');
     }
-    showAlert('success', 'All messages deleted successfully');
+    showToast('success', 'All messages deleted successfully');
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };

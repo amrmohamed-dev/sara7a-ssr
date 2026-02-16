@@ -714,8 +714,8 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 
 },{}],"2VqTL":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _alertsJs = require("./alerts.js");
-var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
+var _toastJs = require("./toast.js");
+var _toastJsDefault = parcelHelpers.interopDefault(_toastJs);
 var _authJs = require("./auth.js");
 var _messageJs = require("./message.js");
 var _otpUtilsJs = require("./otpUtils.js");
@@ -1036,7 +1036,7 @@ if (sendMsgForm) {
         const checkbox = document.getElementById('anonymousCheckbox');
         const isLoggedIn = document.body.dataset.loggedIn === 'true';
         switchBox.addEventListener('click', ()=>{
-            if (!isLoggedIn) return (0, _alertsJsDefault.default)('error', 'You need to login first');
+            if (!isLoggedIn) return (0, _toastJsDefault.default)('error', 'You need to login first');
             checkbox.checked = !checkbox.checked;
             switchBox.classList.toggle('active', checkbox.checked);
         });
@@ -1086,7 +1086,7 @@ if (msgsSection) {
         confirmDeleteBtn.addEventListener('click', async ()=>{
             const msgCards = document.querySelectorAll('.message-card');
             if (!msgCards.length) {
-                (0, _alertsJsDefault.default)('error', 'No messages to delete');
+                (0, _toastJsDefault.default)('error', 'No messages to delete');
                 return;
             }
             confirmDeleteBtn.disabled = true;
@@ -1097,7 +1097,7 @@ if (msgsSection) {
             const deleteStatus = await (0, _messageJs.deleteAllMsgs)();
             if (deleteStatus) loadTabMessages('received');
             else {
-                (0, _alertsJsDefault.default)('error', 'Could not delete messages');
+                (0, _toastJsDefault.default)('error', 'Could not delete messages');
                 overlay.classList.remove('d-flex');
             }
             confirmDeleteBtn.disabled = false;
@@ -1146,7 +1146,7 @@ function attachFavouriteEvents() {
             if (toggleStatus) {
                 const icon = form.querySelector('i');
                 icon.style.color = icon.style.color === 'rgb(241, 196, 15)' ? '#b8b8b8' : '#f1c40f';
-            } else (0, _alertsJsDefault.default)('error', 'Could not update favourite status');
+            } else (0, _toastJsDefault.default)('error', 'Could not update favourite status');
         });
     });
 }
@@ -1215,13 +1215,13 @@ async function loadTabMessages(type) {
         attachCopyEvents();
         attachDeleteMsgEvents(type);
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', 'Could not load messages. Please try again later.');
+        (0, _toastJsDefault.default)('error', 'Could not load messages. Please try again later.');
     } finally{
         overlay.classList.remove('d-flex');
     }
 }
 
-},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV","./message.js":"dQrWs","./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"4GNGB":[function(require,module,exports,__globalThis) {
+},{"./auth.js":"4GNGB","./otpUtils.js":"jEkkX","./settings.js":"lJibV","./message.js":"dQrWs","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./toast.js":"dCvBd"}],"4GNGB":[function(require,module,exports,__globalThis) {
 /*eslint-disable*/ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "register", ()=>register);
@@ -1231,8 +1231,8 @@ parcelHelpers.export(exports, "sendOtp", ()=>sendOtp);
 parcelHelpers.export(exports, "verifyOtp", ()=>verifyOtp);
 parcelHelpers.export(exports, "resetPassword", ()=>resetPassword);
 parcelHelpers.export(exports, "verifyEmail", ()=>verifyEmail);
-var _alertsJs = require("./alerts.js");
-var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
+var _toastJs = require("./toast.js");
+var _toastJsDefault = parcelHelpers.interopDefault(_toastJs);
 const baseUrl = '/api/v1/auth/';
 const register = async (body)=>{
     try {
@@ -1252,10 +1252,10 @@ const register = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1274,10 +1274,10 @@ const login = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1290,7 +1290,7 @@ const logout = async ()=>{
         }
         location.assign('/login');
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
     }
 };
 const sendOtp = async (body)=>{
@@ -1307,10 +1307,10 @@ const sendOtp = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1330,10 +1330,10 @@ const verifyOtp = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1354,10 +1354,10 @@ const resetPassword = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1375,34 +1375,14 @@ const verifyEmail = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         setTimeout(()=>location.reload(), 1500);
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
     }
 };
 
-},{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"iFS3s":[function(require,module,exports,__globalThis) {
-/* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-const hideAlert = ()=>{
-    const el = document.querySelector('.alert');
-    if (el) el.parentElement.removeChild(el);
-};
-// Type is 'success' or 'error'
-const showAlert = (type, msg)=>{
-    hideAlert();
-    const markup = `<div class="alert alert--${type}">${msg}</div>`;
-    document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
-    setTimeout(hideAlert, 5000);
-};
-const alertBox = document.getElementById('verifyAlert');
-if (alertBox) alertBox.querySelector('.close-alert').addEventListener('click', ()=>{
-    alertBox.style.display = 'none';
-});
-exports.default = showAlert;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"iOzeR":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./toast.js":"dCvBd"}],"iOzeR":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -1432,7 +1412,34 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"jEkkX":[function(require,module,exports,__globalThis) {
+},{}],"dCvBd":[function(require,module,exports,__globalThis) {
+/* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function showToast(type, message) {
+    const isError = type === 'error';
+    const icon = isError ? '!' : "\u2713";
+    Toastify({
+        text: `
+      <div class="toast-content">
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-text">${String(message ?? '')}</div>
+      </div>
+    `,
+        duration: isError ? 4000 : 3500,
+        gravity: 'top',
+        position: 'right',
+        close: true,
+        escapeMarkup: false,
+        stopOnFocus: false,
+        className: isError ? 'app-toast--error' : 'app-toast--success',
+        offset: {
+            y: 40
+        }
+    }).showToast();
+}
+exports.default = showToast;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"jEkkX":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "handleEnterOtp", ()=>handleEnterOtp);
@@ -1518,8 +1525,8 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
 parcelHelpers.export(exports, "handleOneImage", ()=>handleOneImage);
 parcelHelpers.export(exports, "deleteAccount", ()=>deleteAccount);
-var _alertsJs = require("./alerts.js");
-var _alertsJsDefault = parcelHelpers.interopDefault(_alertsJs);
+var _toastJs = require("./toast.js");
+var _toastJsDefault = parcelHelpers.interopDefault(_toastJs);
 const baseUrl = '/api/v1/users/me/';
 const updateUserData = async (body)=>{
     const { name, allowMessages, showLastSeen } = body;
@@ -1556,11 +1563,11 @@ const updateSettings = async (body, type)=>{
         const response = type === 'data' ? await updateUserData(body) : await updateUserPassword(body);
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsJsDefault.default)('success', `${type.toUpperCase()} was updated successfully!`);
+        (0, _toastJsDefault.default)('success', `${type.toUpperCase()} was updated successfully!`);
         return true;
     } catch (err) {
-        if (err.message.includes('ref')) (0, _alertsJsDefault.default)('error', 'Password and confirmation do not match');
-        else (0, _alertsJsDefault.default)('error', err.message);
+        if (err.message.includes('ref')) (0, _toastJsDefault.default)('error', 'Password and confirmation do not match');
+        else (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1573,10 +1580,10 @@ const deleteAccount = async ()=>{
             const errData = await response.json();
             throw new Error(errData.message || 'Something went wrong');
         }
-        (0, _alertsJsDefault.default)('success', `Your account was deleted successfully!`);
+        (0, _toastJsDefault.default)('success', `Your account was deleted successfully!`);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1593,23 +1600,23 @@ const handleOneImage = async (method, photo = null)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsJsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsJsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
 
-},{"./alerts.js":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}],"dQrWs":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./toast.js":"dCvBd"}],"dQrWs":[function(require,module,exports,__globalThis) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "sendMsg", ()=>sendMsg);
 parcelHelpers.export(exports, "toggleFavourite", ()=>toggleFavourite);
 parcelHelpers.export(exports, "deleteOneMsg", ()=>deleteOneMsg);
 parcelHelpers.export(exports, "deleteAllMsgs", ()=>deleteAllMsgs);
-var _alerts = require("./alerts");
-var _alertsDefault = parcelHelpers.interopDefault(_alerts);
+var _toastJs = require("./toast.js");
+var _toastJsDefault = parcelHelpers.interopDefault(_toastJs);
 const baseUrl = '/api/v1/messages/';
 const sendMsg = async (body)=>{
     try {
@@ -1619,10 +1626,10 @@ const sendMsg = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsDefault.default)('success', 'Your message sent successfully');
+        (0, _toastJsDefault.default)('success', 'Your message sent successfully');
         return true;
     } catch (err) {
-        (0, _alertsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1634,10 +1641,10 @@ const toggleFavourite = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _alertsDefault.default)('success', dataSend.message);
+        (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
-        (0, _alertsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1653,7 +1660,7 @@ const deleteOneMsg = async (body)=>{
         }
         return true;
     } catch (err) {
-        (0, _alertsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
@@ -1666,14 +1673,14 @@ const deleteAllMsgs = async ()=>{
             const errData = await response.json();
             throw new Error(errData.message || 'Something went wrong');
         }
-        (0, _alertsDefault.default)('success', 'All messages deleted successfully');
+        (0, _toastJsDefault.default)('success', 'All messages deleted successfully');
         return true;
     } catch (err) {
-        (0, _alertsDefault.default)('error', err.message);
+        (0, _toastJsDefault.default)('error', err.message);
         return false;
     }
 };
 
-},{"./alerts":"iFS3s","@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"iOzeR","./toast.js":"dCvBd"}]},["j85dc","2VqTL"], "2VqTL", "parcelRequirea981", {})
 
 //# sourceMappingURL=index.js.map

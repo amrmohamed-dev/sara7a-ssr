@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import showAlert from './alerts.js';
+import showToast from './toast.js';
 import { login, register, logout } from './auth.js';
 import {
   deleteAllMsgs,
@@ -451,7 +451,7 @@ if (sendMsgForm) {
 
     switchBox.addEventListener('click', () => {
       if (!isLoggedIn)
-        return showAlert('error', 'You need to login first');
+        return showToast('error', 'You need to login first');
 
       checkbox.checked = !checkbox.checked;
 
@@ -517,7 +517,7 @@ if (msgsSection) {
     confirmDeleteBtn.addEventListener('click', async () => {
       const msgCards = document.querySelectorAll('.message-card');
       if (!msgCards.length) {
-        showAlert('error', 'No messages to delete');
+        showToast('error', 'No messages to delete');
         return;
       }
       confirmDeleteBtn.disabled = true;
@@ -533,7 +533,7 @@ if (msgsSection) {
       if (deleteStatus) {
         loadTabMessages('received');
       } else {
-        showAlert('error', 'Could not delete messages');
+        showToast('error', 'Could not delete messages');
         overlay.classList.remove('d-flex');
       }
 
@@ -597,7 +597,7 @@ function attachFavouriteEvents() {
         icon.style.color =
           icon.style.color === 'rgb(241, 196, 15)' ? '#b8b8b8' : '#f1c40f';
       } else {
-        showAlert('error', 'Could not update favourite status');
+        showToast('error', 'Could not update favourite status');
       }
     });
   });
@@ -693,7 +693,7 @@ async function loadTabMessages(type) {
     attachCopyEvents();
     attachDeleteMsgEvents(type);
   } catch (err) {
-    showAlert('error', 'Could not load messages. Please try again later.');
+    showToast('error', 'Could not load messages. Please try again later.');
   } finally {
     overlay.classList.remove('d-flex');
   }

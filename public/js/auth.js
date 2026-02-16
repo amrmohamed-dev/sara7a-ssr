@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import showAlert from './alerts.js';
+import showToast from './toast.js';
 
 const baseUrl = '/api/v1/auth/';
 
@@ -25,10 +25,10 @@ const register = async (body) => {
       throw new Error(dataSend.message || 'Something went wrong');
     }
 
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -49,10 +49,10 @@ const login = async (body) => {
       throw new Error(dataSend.message || 'Something went wrong');
     }
 
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -66,7 +66,7 @@ const logout = async () => {
     }
     location.assign('/login');
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
   }
 };
 
@@ -84,10 +84,10 @@ const sendOtp = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message);
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -106,10 +106,10 @@ const verifyOtp = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message);
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -128,10 +128,10 @@ const resetPassword = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message);
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -150,10 +150,10 @@ const verifyEmail = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message);
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     setTimeout(() => location.reload(), 1500);
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
   }
 };
 

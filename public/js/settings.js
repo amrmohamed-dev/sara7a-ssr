@@ -1,6 +1,6 @@
 /*eslint-disable*/
 
-import showAlert from './alerts.js';
+import showToast from './toast.js';
 
 const baseUrl = '/api/v1/users/me/';
 
@@ -38,16 +38,16 @@ const updateSettings = async (body, type) => {
     if (!response.ok) {
       throw new Error(dataSend.message || 'Something went wrong');
     }
-    showAlert(
+    showToast(
       'success',
       `${type.toUpperCase()} was updated successfully!`,
     );
     return true;
   } catch (err) {
     if (err.message.includes('ref')) {
-      showAlert('error', 'Password and confirmation do not match');
+      showToast('error', 'Password and confirmation do not match');
     } else {
-      showAlert('error', err.message);
+      showToast('error', err.message);
     }
     return false;
   }
@@ -62,10 +62,10 @@ const deleteAccount = async () => {
       const errData = await response.json();
       throw new Error(errData.message || 'Something went wrong');
     }
-    showAlert('success', `Your account was deleted successfully!`);
+    showToast('success', `Your account was deleted successfully!`);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };
@@ -85,10 +85,10 @@ const handleOneImage = async (method, photo = null) => {
     if (!response.ok) {
       throw new Error(dataSend.message || 'Something went wrong');
     }
-    showAlert('success', dataSend.message);
+    showToast('success', dataSend.message);
     return true;
   } catch (err) {
-    showAlert('error', err.message);
+    showToast('error', err.message);
     return false;
   }
 };

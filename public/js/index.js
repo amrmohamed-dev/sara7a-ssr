@@ -685,6 +685,19 @@ async function loadTabMessages(type) {
 
   try {
     const res = await fetch(`/messages?tab=${type}&sort=${sortValue}`);
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        overlay.classList.remove('d-flex');
+        showToast('error', 'Please login first.');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
+        return;
+      }
+      throw new Error('Failed to load');
+    }
+
     const html = await res.text();
 
     tabEl.innerHTML = html;
@@ -693,6 +706,12 @@ async function loadTabMessages(type) {
     attachCopyEvents();
     attachDeleteMsgEvents(type);
   } catch (err) {
+    tabEl.innerHTML = `
+      <div class="text-center py-5">
+        <h5 class="text-danger mb-2">Could not load messages</h5>
+        <p class="text-muted">Please try again later.</p>
+      </div>
+    `;
     showToast('error', 'Could not load messages. Please try again later.');
   } finally {
     setTimeout(() => {

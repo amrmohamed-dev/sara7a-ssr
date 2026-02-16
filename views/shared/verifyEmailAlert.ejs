@@ -53,7 +53,7 @@
 </style>
 
 <% if (!user.isVerified) { %>
-  <div id="verifyAlert" class="alert-custom mb-3">
+  <div id="verifyAlert" class="alert alert-custom alert-dismissible fade show mb-3" role="alert">
     <% if(page==='messages') { %>
       <span>⚠️ You can receive only <strong>5 messages</strong>. Verify your email to unlock <strong>unlimited messages</strong>.</span>
     <% } else if(page==='settings') { %>
@@ -61,11 +61,21 @@
     <% } else {%>
       <span>⚠️ Please verify your account to unlock all features.</span>
     <% } %>
-    <div>
-      <button class="btn btn-sm me-2 verifyEmailBtn" data-email="<%=user.email%>">
+
+    <div class="d-flex align-items-start gap-2">
+      <button 
+        type="button"
+        class="btn btn-sm verifyEmailBtn"
+        data-email="<%=user.email%>">
         Verify Now
       </button>
-      <button class="close-alert">&times;</button>
+
+      <button 
+        type="button"
+        class="btn-close close-alert"
+        data-bs-dismiss="alert"
+        aria-label="Close">
+      &times;</button>
     </div>
   </div>
 <% } %>

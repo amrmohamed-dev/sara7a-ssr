@@ -695,6 +695,8 @@ async function loadTabMessages(type) {
   } catch (err) {
     showToast('error', 'Could not load messages. Please try again later.');
   } finally {
-    overlay.classList.remove('d-flex');
+    setTimeout(() => {
+      overlay.classList.remove('d-flex');
+    }, 1000);
   }
 }

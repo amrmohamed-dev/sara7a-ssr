@@ -84,6 +84,9 @@ const sendOtp = async (body) => {
     if (!response.ok) {
       throw new Error(dataSend.message);
     }
+    if (dataSend.demoOtp) {
+      return { demoOtp: dataSend.demoOtp };
+    }
     showToast('success', dataSend.message);
     return true;
   } catch (err) {
@@ -157,4 +160,12 @@ const verifyEmail = async (body) => {
   }
 };
 
-export { register, login, logout, sendOtp, verifyOtp, resetPassword, verifyEmail };
+export {
+  register,
+  login,
+  logout,
+  sendOtp,
+  verifyOtp,
+  resetPassword,
+  verifyEmail,
+};

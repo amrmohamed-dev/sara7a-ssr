@@ -11,7 +11,8 @@ const signToken = (payload) => {
   return token;
 };
 
-const createSendToken = (user, statusCode, res, message) => {
+const createSendToken = (user, statusCode, res, message, options = {}) => {
+  const { demoMode = false, demoOtp } = options;
   const token = signToken({ userId: user._id, role: user.role });
   const cookieOptions = {
     expires: new Date(
@@ -21,17 +22,25 @@ const createSendToken = (user, statusCode, res, message) => {
     sameSite: 'Strict',
     httpOnly: true,
   };
+
   res.cookie('jwt', token, cookieOptions);
-  res.status(statusCode).json({
+
+  const responseBody = {
     status: 'success',
     message,
     data: {
       user,
     },
-  });
+  };
+
+  if (demoMode && demoOtp) {
+    responseBody.demoOtp = demoOtp;
+  }
+
+  res.status(statusCode).json(responseBody);
 };
 
-const sendOtpEmail = async (user, purpose, res, message) => {
+const sendOtpEmail = async (user, purpose) => {
   const otp = user.generateOtp(purpose);
   await user.save({ validateBeforeSave: false });
 
@@ -42,11 +51,7 @@ const sendOtpEmail = async (user, purpose, res, message) => {
     otp,
   };
 
-  await createSendEmail(options, user);
-
-  if (res) {
-    createSendToken(user, 200, res, message);
-  }
+  return await createSendEmail(options, user);
 };
 
 const verifyOtp = async (email, otp, purpose) => {

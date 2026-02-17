@@ -96,10 +96,30 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
   sendBtn.disabled = false;
   sendBtn.textContent = originalText;
   if (sendingStatus) {
-    const otpModal = new bootstrap.Modal(
-      document.getElementById('otpModal'),
-    );
+    const otpModalEl = document.getElementById('otpModal');
+    const otpModal = new bootstrap.Modal(otpModalEl);
+
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input) => (input.value = ''));
+
+    const demoBox = document.getElementById('demoOtpBox');
+
+    if (typeof sendingStatus === 'object') {
+      demoBox.classList.remove('d-none');
+      demoBox.textContent = `Demo Mode: Your OTP is ${sendingStatus.demoOtp} (valid for 10 minutes).`;
+    } else {
+      demoBox.textContent = '';
+      demoBox.classList.add('d-none');
+    }
     otpModal.show();
+
+    otpModalEl.addEventListener(
+      'shown.bs.modal',
+      () => {
+        inputs[0]?.focus();
+      },
+      { once: true },
+    );
 
     let resendBtn = document.getElementById('resendOtpBtn');
     resendBtn.replaceWith(resendBtn.cloneNode(true));
@@ -108,7 +128,6 @@ const sendOtpFlow = async (sendBtn, email, purpose) => {
     otpUtils.startCountdown(resendBtn, countdownEl);
 
     // Move between OTP inputs automatically & Paste OTP
-    const inputs = document.querySelectorAll('.otp-input');
     otpUtils.handleEnterOtp(inputs);
 
     resendBtn.addEventListener('click', async () => {

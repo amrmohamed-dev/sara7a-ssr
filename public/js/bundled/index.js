@@ -792,15 +792,30 @@ const sendOtpFlow = async (sendBtn, email, purpose)=>{
     sendBtn.disabled = false;
     sendBtn.textContent = originalText;
     if (sendingStatus) {
-        const otpModal = new bootstrap.Modal(document.getElementById('otpModal'));
+        const otpModalEl = document.getElementById('otpModal');
+        const otpModal = new bootstrap.Modal(otpModalEl);
+        const inputs = document.querySelectorAll('.otp-input');
+        inputs.forEach((input)=>input.value = '');
+        const demoBox = document.getElementById('demoOtpBox');
+        if (typeof sendingStatus === 'object') {
+            demoBox.classList.remove('d-none');
+            demoBox.textContent = `Demo Mode: Your OTP is ${sendingStatus.demoOtp} (valid for 10 minutes).`;
+        } else {
+            demoBox.textContent = '';
+            demoBox.classList.add('d-none');
+        }
         otpModal.show();
+        otpModalEl.addEventListener('shown.bs.modal', ()=>{
+            inputs[0]?.focus();
+        }, {
+            once: true
+        });
         let resendBtn = document.getElementById('resendOtpBtn');
         resendBtn.replaceWith(resendBtn.cloneNode(true));
         resendBtn = document.getElementById('resendOtpBtn');
         const countdownEl = document.getElementById('countdown');
         _otpUtilsJs.startCountdown(resendBtn, countdownEl);
         // Move between OTP inputs automatically & Paste OTP
-        const inputs = document.querySelectorAll('.otp-input');
         _otpUtilsJs.handleEnterOtp(inputs);
         resendBtn.addEventListener('click', async ()=>{
             resendBtn.disabled = true;
@@ -1341,6 +1356,9 @@ const sendOtp = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message);
+        if (dataSend.demoOtp) return {
+            demoOtp: dataSend.demoOtp
+        };
         (0, _toastJsDefault.default)('success', dataSend.message);
         return true;
     } catch (err) {
@@ -1507,6 +1525,18 @@ const handleEnterOtp = (inputs)=>{
         });
         input.addEventListener('keydown', (e)=>{
             if (e.key === 'Backspace' && index > 0 && !e.target.value) inputs[index - 1].focus();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('verifyOtpBtn').click();
+            }
+            if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                e.preventDefault();
+                inputs[index + 1].focus();
+            }
+            if (e.key === 'ArrowLeft' && index > 0) {
+                e.preventDefault();
+                inputs[index - 1].focus();
+            }
         });
     });
 };

@@ -33,6 +33,7 @@ const register = catchAsync(async (req, res, next) => {
 const sendOtp = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   const { purpose } = req.params;
+  const responseMessage = 'If an OTP was sent, please check your email.';
 
   const otpConfigs = {
     'Email Confirmation': {
@@ -55,31 +56,35 @@ const sendOtp = catchAsync(async (req, res, next) => {
   if (!config) return next(new AppError('Invalid OTP purpose.', 400));
 
   const user = await config.findUser();
-  const message = 'If an OTP was sent, please check your email.';
 
   if (config.condition(user)) {
     if (purpose === 'Password Recovery') {
       return res.status(200).json({
         status: 'success',
-        message,
+        message: responseMessage,
       });
     }
     return next(new AppError(config.errorMsg, 400));
   }
 
-  await authService.sendOtpEmail(
-    user,
-    purpose,
-    config.sendToken ? res : null,
-    message,
-  );
+  const emailResult = await authService.sendOtpEmail(user, purpose);
+  const responseBody = {
+    status: 'success',
+    message: responseMessage,
+  };
 
-  if (!config.sendToken) {
-    res.status(200).json({
-      status: 'success',
-      message,
+  if (emailResult?.demoMode && emailResult?.demoOtp) {
+    responseBody.demoOtp = emailResult.demoOtp;
+  }
+
+  if (config.sendToken) {
+    return authService.createSendToken(user, 200, res, responseMessage, {
+      demoMode: Boolean(responseBody.demoOtp),
+      demoOtp: responseBody.demoOtp,
     });
   }
+
+  res.status(200).json(responseBody);
 });
 
 const verifyEmail = catchAsync(async (req, res, next) => {

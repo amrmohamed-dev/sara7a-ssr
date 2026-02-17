@@ -19,19 +19,28 @@ const transporter = !isProduction
     })
   : null;
 
+const emailTemplatePath = path.join(
+  process.cwd(),
+  'emails',
+  'templates',
+  'emailTemplate.html',
+);
+
+const isResendValidationError = (error) => {
+  const statusCode = Number(error?.statusCode);
+  const errorName = String(error?.name ?? '').toLowerCase();
+
+  return statusCode === 403 && errorName === 'validation_error';
+};
+
 const loadTemplate = async (replacements = {}) => {
-  const templatePath = path.join(
-    process.cwd(),
-    'emails',
-    'templates',
-    'emailTemplate.html',
-  );
-  let html = await fs.readFile(templatePath, 'utf-8');
+  let html = await fs.readFile(emailTemplatePath, 'utf-8');
+
   Object.keys(replacements).forEach((key) => {
     if (key) {
       html = html.replace(
         new RegExp(`{{${key}}}`, 'g'),
-        replacements[key],
+        String(replacements[key] ?? ''),
       );
     }
   });
@@ -55,11 +64,41 @@ const sendEmail = async (options) => {
     html,
   };
 
-  const response = isProduction
-    ? await resend.emails.send(mailOptions)
-    : await transporter.sendMail(mailOptions);
+  if (!isProduction) {
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  }
 
-  return response;
+  let response;
+  try {
+    response = await resend.emails.send(mailOptions);
+  } catch (error) {
+    if (isResendValidationError(error)) {
+      return {
+        success: true,
+        demoMode: true,
+        demoOtp: otp,
+      };
+    }
+
+    throw error;
+  }
+
+  if (response?.error) {
+    if (isResendValidationError(response.error)) {
+      return {
+        success: true,
+        demoMode: true,
+        demoOtp: otp,
+        error: response.error,
+      };
+    }
+
+    throw new Error(response.error.message || 'Failed to send email.');
+  }
+
+  return { success: true };
 };
 
+export { isResendValidationError };
 export default sendEmail;

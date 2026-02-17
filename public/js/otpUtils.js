@@ -34,6 +34,18 @@ const handleEnterOtp = (inputs) => {
       if (e.key === 'Backspace' && index > 0 && !e.target.value) {
         inputs[index - 1].focus();
       }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('verifyOtpBtn').click();
+      }
+      if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+        e.preventDefault();
+        inputs[index + 1].focus();
+      }
+      if (e.key === 'ArrowLeft' && index > 0) {
+        e.preventDefault();
+        inputs[index - 1].focus();
+      }
     });
   });
 };

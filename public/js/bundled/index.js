@@ -1056,20 +1056,35 @@ if (sendMsgForm) {
         addImageBtn.disabled = true;
         if (removeImageBtn) removeImageBtn.disabled = true;
         const sendingStatus = await (0, _messageJs.sendMsg)(formData);
-        sendMsgBtn.textContent = 'Send';
-        switchBox.classList.remove('disabled-switch');
-        sendMsgBtn.disabled = false;
-        textarea.disabled = false;
-        addImageBtn.disabled = false;
-        if (removeImageBtn) removeImageBtn.disabled = false;
-        if (sendingStatus) {
-            textarea.value = '';
-            addImageBtn.textContent = originalAddImgText;
-            updateCount();
-            imagePreviewDiv.classList.add('d-none');
-            msgImageInput.value = '';
-            previewImg.src = '';
+        if (!sendingStatus) {
+            sendMsgBtn.textContent = 'Send';
+            switchBox.classList.remove('disabled-switch');
+            sendMsgBtn.disabled = false;
+            textarea.disabled = false;
+            addImageBtn.disabled = false;
+            if (removeImageBtn) removeImageBtn.disabled = false;
+            return;
         }
+        const animationContainer = document.getElementById('sendAnimationContainer');
+        const sendAnimation = document.getElementById('sendAnimation');
+        sendMsgForm.classList.add('d-none');
+        animationContainer.classList.remove('d-none');
+        const player = sendAnimation.dotLottie;
+        if (!player) {
+            (0, _toastJsDefault.default)('success', 'Your message sent successfully');
+            setTimeout(()=>location.reload(), 3500);
+            return;
+        }
+        player.setRenderConfig({
+            devicePixelRatio,
+            quality: 'high',
+            autoResize: true
+        });
+        player.setSpeed(0.6);
+        player.addEventListener('complete', ()=>location.reload(), {
+            once: true
+        });
+        player.play();
     });
 }
 if (msgsSection) {
@@ -1645,7 +1660,6 @@ const sendMsg = async (body)=>{
         });
         const dataSend = await response.json();
         if (!response.ok) throw new Error(dataSend.message || 'Something went wrong');
-        (0, _toastJsDefault.default)('success', 'Your message sent successfully');
         return true;
     } catch (err) {
         (0, _toastJsDefault.default)('error', err.message);

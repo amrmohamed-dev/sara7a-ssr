@@ -16,7 +16,6 @@ const sendMsg = async (body) => {
       throw new Error(dataSend.message || 'Something went wrong');
     }
 
-    showToast('success', 'Your message sent successfully');
     return true;
   } catch (err) {
     showToast('error', err.message);

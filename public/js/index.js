@@ -480,21 +480,44 @@ if (sendMsgForm) {
 
     const sendingStatus = await sendMsg(formData);
 
-    sendMsgBtn.textContent = 'Send';
-    switchBox.classList.remove('disabled-switch');
-    sendMsgBtn.disabled = false;
-    textarea.disabled = false;
-    addImageBtn.disabled = false;
-    if (removeImageBtn) removeImageBtn.disabled = false;
-
-    if (sendingStatus) {
-      textarea.value = '';
-      addImageBtn.textContent = originalAddImgText;
-      updateCount();
-      imagePreviewDiv.classList.add('d-none');
-      msgImageInput.value = '';
-      previewImg.src = '';
+    if (!sendingStatus) {
+      sendMsgBtn.textContent = 'Send';
+      switchBox.classList.remove('disabled-switch');
+      sendMsgBtn.disabled = false;
+      textarea.disabled = false;
+      addImageBtn.disabled = false;
+      if (removeImageBtn) removeImageBtn.disabled = false;
+      return;
     }
+    const animationContainer = document.getElementById(
+      'sendAnimationContainer',
+    );
+    const sendAnimation = document.getElementById('sendAnimation');
+
+    sendMsgForm.classList.add('d-none');
+    animationContainer.classList.remove('d-none');
+
+    const player = sendAnimation.dotLottie;
+
+    if (!player) {
+      showToast('success', 'Your message sent successfully');
+      setTimeout(() => location.reload(), 3500);
+      return;
+    }
+
+    player.setRenderConfig({
+      devicePixelRatio,
+      quality: 'high',
+      autoResize: true,
+    });
+
+    player.setSpeed(0.6);
+
+    player.addEventListener('complete', () => location.reload(), {
+      once: true,
+    });
+
+    player.play();
   });
 }
 

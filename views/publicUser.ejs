@@ -40,6 +40,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .toggle-label {
@@ -53,6 +55,7 @@
     width: 48px;
     height: 26px;
     cursor: pointer;
+    flex-shrink: 0;
   }
 
   .switch input {
@@ -92,6 +95,18 @@
     pointer-events: none;
     cursor: not-allowed;
   }
+
+  #sendAnimationContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  #sendAnimation {
+    width: clamp(250px, 80vw, 420px);
+    aspect-ratio: 1 / 1;
+  }
 </style>
 
 <div class="container text-center py-5 my-5">
@@ -114,6 +129,13 @@
     <% } %>
 
     <div class="container w-75 w-md-50 m-auto">
+      <div id="sendAnimationContainer" class="d-none text-center">
+        <dotlottie-wc
+          id="sendAnimation"
+          src="/animations/messageSending.lottie"
+        >
+        </dotlottie-wc>
+      </div>
       <form class="form form--send-msg" enctype="multipart/form-data">
         <textarea
           class="form-control"
@@ -148,8 +170,14 @@
         <% } %>
 
         <div class="mt-3">
-          <button type="button" id="addImageBtn" class="btn btn-outline-secondary w-100" <%= !publicUser.allowMessages ? 'disabled' : '' %>>
-            <i class="fas fa-image"></i> Add Photo (optional)
+          <button
+            type="button"
+            id="addImageBtn"
+            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 flex-wrap"
+            <%= !publicUser.allowMessages ? 'disabled' : '' %>
+          >
+            <i class="fas fa-image"></i>
+            <span>Add Photo <small class="d-block d-sm-inline">(optional)</small></span>
           </button>
 
           <input 

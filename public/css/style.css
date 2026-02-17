@@ -13,6 +13,13 @@ body {
   border-radius: 50%;
 }
 
+.brand-text {
+  background: linear-gradient(45deg, #1abc9c, #6f42c1);
+  font-weight: bold;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .navbar-nav .nav-link {
   color: #fff !important;
   font-weight: 500;

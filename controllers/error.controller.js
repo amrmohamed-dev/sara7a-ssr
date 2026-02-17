@@ -7,8 +7,10 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateErrorDB = (err) => {
-  const value = err.errmsg.match(/"(.*?)"/)[0];
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  const field = Object.keys(err.keyValue)[0];
+  const value = err.keyValue[field];
+
+  const message = `Duplicate ${field}: "${value}". Please use another value.`;
 
   return new AppError(message, 400);
 };
@@ -25,6 +27,9 @@ const handlejwtError = () =>
 
 const handlejwtExpiredError = () =>
   new AppError('Invalid or expired token, please log in again.', 401);
+
+const handleFileSizeError = () =>
+  new AppError('File is too large (Max 5MB)', 400);
 
 const sendErrorDev = (err, req, res) => {
   //API
@@ -93,12 +98,15 @@ const globalError = (err, req, res, next) => {
     let error = Object.create(err);
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
-    if (error.code === 11000) error = handleDuplicateErrorDB(error);
+    if (error.code === 11000 || error.cause?.code === 11000)
+      error = handleDuplicateErrorDB(error.cause || error);
     if (error.name === 'ValidationError')
       error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') error = handlejwtError();
     if (error.name === 'TokenExpiredError')
       error = handlejwtExpiredError();
+    if (error.name === 'MulterError' && error.code === 'LIMIT_FILE_SIZE')
+      error = handleFileSizeError();
 
     sendErrorProd(error, req, res);
   }

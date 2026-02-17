@@ -3,7 +3,22 @@ import AppError from '../../utils/error/appError.js';
 
 const createSendEmail = async (options, user) => {
   try {
-    await sendEmail(options);
+    const response = await sendEmail(options);
+    if (response?.error) {
+      // Free tier restriction (Demo mode)
+      if (
+        response.error.statusCode === 403 &&
+        response.error.name === 'validation_error'
+      ) {
+        console.log(
+          `OTP (demo mode): ${options.otp} valid for 10 minutes.`,
+        );
+        return true;
+      }
+
+      // Another Error
+      throw new Error(response.error.message);
+    }
     return true;
   } catch (err) {
     const resetFields = ['otp.code', 'otp.expires', 'otp.purpose'];

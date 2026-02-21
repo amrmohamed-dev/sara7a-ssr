@@ -38,12 +38,21 @@ const updateMe = catchAsync(async (req, res, next) => {
 
 const updateProfilePhoto = catchAsync(async (req, res, next) => {
   const { imageUrl, imagePublicId } = req.body;
-  const { _id } = req.user;
+  const { _id, photoPublicId: oldPublicId } = req.user;
+
+  if (!imageUrl || !imagePublicId)
+    return next(new AppError('Image data is required', 400));
+
   const user = await User.findByIdAndUpdate(
     _id,
     { photo: imageUrl, photoPublicId: imagePublicId },
     { new: true, runValidators: true },
   );
+  if (oldPublicId) {
+    deleteOneImage(oldPublicId).catch((err) =>
+      console.error('Failed to delete old image:', err),
+    );
+  }
   res.status(200).json({
     status: 'success',
     message: 'Your photo uploaded successfully',
@@ -62,7 +71,7 @@ const deleteProfilePhoto = catchAsync(async (req, res, next) => {
   await deleteOneImage(photoPublicId);
   const user = await User.findByIdAndUpdate(
     _id,
-    { photo: '/img/users/static/avatar.png' },
+    { photo: '/img/users/static/avatar.png', photoPublicId: null },
     { new: true, runValidators: true },
   );
   res.status(200).json({

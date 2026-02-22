@@ -144,10 +144,10 @@ Swagger UI enables manual testing of both public and protected endpoints, includ
 ### Swagger UI
 
 - **Local:** http://localhost:3000/api-docs
-- **Production:** https://sara7a-ssr.vercel.app/api-docs
+- **Production:** https://sara7a-ssr.onrender.com/api-docs
 
 <p align="center">
-  <a href="https://sara7a-ssr.vercel.app/api-docs">
+  <a href="https://sara7a-ssr.onrender.com/api-docs">
     <img src="https://img.shields.io/badge/API-Swagger-green" />
   </a>
 </p>
@@ -328,7 +328,7 @@ Note: when calling these endpoints from API clients (e.g., Postman), URL-encode 
   - OTP-related endpoints are strictly limited to prevent email and OTP spamming.
   - Password reset flows are protected against repeated attempts.
 - Message and favourite actions enforce ownership checks.
-- In the deployed production demo (Vercel free tier), email delivery may run in controlled demo mode due to provider limitations.
+- In the deployed production demo (Render free tier), email delivery may run in controlled demo mode due to provider limitations.
   In this scenario, the generated OTP is included in the API response strictly for reviewer flow validation and demonstration purposes.
 - Keep `.env` private and rotate secrets if exposed.
 

@@ -20,7 +20,7 @@ externalDocs:
 servers:
   - url: http://localhost:3000
     description: Development server
-  - url: https://sara7a-ssr.vercel.app
+  - url: https://sara7a-ssr.onrender.com
     description: Production server
 
 tags:

@@ -1,7 +1,7 @@
 {
   "name": "sara7a",
   "version": "1.0.0",
-  "description": "A simple MVC-based web application that allows users to send and receive anonymous messages.",
+  "description": "A production-oriented anonymous messaging web application that allows users to send and receive anonymous messages.",
   "author": "Amr Mohammed",
   "license": "MIT",
   "type": "module",

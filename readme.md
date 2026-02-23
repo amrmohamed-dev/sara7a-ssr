@@ -129,6 +129,8 @@ Sara7a is a hybrid SSR + API application:
 │  └─ swagger.yaml
 ├─ views/
 ├─ public/
+├─ scripts/
+│   └─ cleanup.js
 ├─ .env.example
 └─ vercel.json
 ```
@@ -352,14 +354,19 @@ Note: when calling these endpoints from API clients (e.g., Postman), URL-encode 
 
 `cross-env` is used to ensure environment variables work consistently across different operating systems (Windows, macOS, Linux).
 
-| Script     | Command                                                            | Purpose                    |
-| ---------- | ------------------------------------------------------------------ | -------------------------- |
-| `dev`      | `cross-env NODE_ENV=development nodemon server.js`                 | Development server         |
-| `start`    | `node server.js`                                                   | Production start           |
-| `prod`     | `cross-env NODE_ENV=production nodemon server.js`                  | Production-mode nodemon    |
-| `debug`    | `ndb server.js`                                                    | Debugging                  |
-| `watch:js` | `parcel serve ./public/js/index.js --dist-dir ./public/js/bundled` | Front-end watch build      |
-| `build:js` | `parcel build ./public/js/index.js --dist-dir ./public/js/bundled` | Front-end production build |
+| Script     | Command                                                            | Purpose                                       |
+| ---------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| `dev`      | `cross-env NODE_ENV=development nodemon server.js`                 | Development server                            |
+| `start`    | `node server.js`                                                   | Production start                              |
+| `prod`     | `cross-env NODE_ENV=production nodemon server.js`                  | Production-mode nodemon                       |
+| `debug`    | `ndb server.js`                                                    | Debugging                                     |
+| `watch:js` | `parcel serve ./public/js/index.js --dist-dir ./public/js/bundled` | Front-end watch build                         |
+| `build:js` | `parcel build ./public/js/index.js --dist-dir ./public/js/bundled` | Front-end production build                    |
+| `clean`    | `node ./scripts/cleanup.js`                                        | Removes expired OTP records (maintenance job) |
+
+The `clean` script executes a background maintenance task responsible for removing expired OTP entries from the database.
+
+This script is used in production as a scheduled cron job (Render Scheduled Service) to ensure expired verification and recovery tokens are periodically cleaned
 
 ## Testing Strategy
 

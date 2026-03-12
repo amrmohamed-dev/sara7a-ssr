@@ -146,10 +146,10 @@ Swagger UI enables manual testing of both public and protected endpoints, includ
 ### Swagger UI
 
 - **Local:** http://localhost:3000/api-docs
-- **Production:** https://sara7a-ssr.onrender.com/api-docs
+- **Production:** https://sara7a-web.onrender.com/api-docs
 
 <p align="center">
-  <a href="https://sara7a-ssr.onrender.com/api-docs">
+  <a href="https://sara7a-web.onrender.com/api-docs">
     <img src="https://img.shields.io/badge/API-Swagger-green" />
   </a>
 </p>
